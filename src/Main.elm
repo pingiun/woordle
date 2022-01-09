@@ -263,24 +263,24 @@ modelDecoder todaysWord =
                         ( [], Playing )
             in
             -- Debug.log "decoded"
-                { board = startBoard ++ [ [] ]
-                , correctWord = String.toList todaysWord
-                , keyboard = List.foldr (\word keys -> updateKeyboard word keys) startKeyboard startBoard
-                , window = { width = 0, height = 0 }
-                , allWords = Set.empty
-                , playState = playState
-                , lastPlayed = lastPlayed
-                , lastCompleted = lastCompleted
-                , currentTime = millisToPosix 0
-                , currentZone = utc
-                , toasts = []
-                , showEndScreen = True
-                , offset = 0
-                , showHelp = False
-                , showSettings = False
-                , useDarkMode = darkTheme
-                , useContrastMode = colorBlindTheme
-                }
+            { board = startBoard ++ [ [] ]
+            , correctWord = String.toList todaysWord
+            , keyboard = List.foldr (\word keys -> updateKeyboard word keys) startKeyboard startBoard
+            , window = { width = 0, height = 0 }
+            , allWords = Set.empty
+            , playState = playState
+            , lastPlayed = lastPlayed
+            , lastCompleted = lastCompleted
+            , currentTime = millisToPosix 0
+            , currentZone = utc
+            , toasts = []
+            , showEndScreen = True
+            , offset = 0
+            , showHelp = False
+            , showSettings = False
+            , useDarkMode = darkTheme
+            , useContrastMode = colorBlindTheme
+            }
         )
         (D.field "gameState" getBoardState)
         (D.field "gameState" getEvaluations)
@@ -307,25 +307,25 @@ modelFromJson inp todaysWord =
             model
 
         Err e ->
-            Debug.log (D.errorToString e)
-                { board = [ [] ]
-                , correctWord = String.toList todaysWord
-                , keyboard = startKeyboard
-                , window = { width = 0, height = 0 }
-                , allWords = Set.empty
-                , playState = Playing
-                , lastPlayed = Nothing
-                , lastCompleted = Nothing
-                , currentTime = millisToPosix 0
-                , currentZone = utc
-                , toasts = []
-                , showEndScreen = True
-                , offset = 0
-                , showHelp = True
-                , showSettings = False
-                , useDarkMode = False
-                , useContrastMode = False
-                }
+            -- Debug.log (D.errorToString e)
+            { board = [ [] ]
+            , correctWord = String.toList todaysWord
+            , keyboard = startKeyboard
+            , window = { width = 0, height = 0 }
+            , allWords = Set.empty
+            , playState = Playing
+            , lastPlayed = Nothing
+            , lastCompleted = Nothing
+            , currentTime = millisToPosix 0
+            , currentZone = utc
+            , toasts = []
+            , showEndScreen = True
+            , offset = 0
+            , showHelp = True
+            , showSettings = False
+            , useDarkMode = False
+            , useContrastMode = False
+            }
 
 
 type alias InitialData =
@@ -341,7 +341,9 @@ init : InitialData -> b -> c -> ( Model, Cmd Msg )
 init flags url key_ =
     let
         model =
-            modelFromJson (Debug.log "storage" flags.localStorage) flags.todaysWord
+            modelFromJson
+                flags.localStorage
+                flags.todaysWord
     in
     ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset }
     , perform NewZone here
@@ -359,7 +361,7 @@ subscriptions model =
         [ onKeyDown keyDecoder
         , onResize NewSize
         , every 100 NewTime
-        , makeToast (\msg -> Debug.log "toast" <| AddToast { content = text msg, removeAt = inTwoSeconds model.currentTime })
+        , makeToast (\msg -> AddToast { content = text msg, removeAt = inTwoSeconds model.currentTime })
         ]
 
 
@@ -375,7 +377,7 @@ toKey string =
             Keyboard (Character char)
 
         _ ->
-            Keyboard (Control (Debug.log "key" string))
+            Keyboard (Control string)
 
 
 onUrlRequest : a -> Msg
@@ -569,9 +571,9 @@ handleCharacter x model =
         '↵' ->
             let
                 submittedWord =
-                    lastWord (Debug.log "board" model.board) |> List.map extractChar |> String.fromList
+                    lastWord model.board |> List.map extractChar |> String.fromList
             in
-            if Set.member (Debug.log "submitted" submittedWord) model.allWords then
+            if Set.member submittedWord model.allWords then
                 processNewWord model
 
             else
@@ -598,7 +600,7 @@ processNewWord model =
             List.length (lastWord model.board) == 5 && List.length model.board == 6
 
         lastWordAllGreen =
-            Debug.log "allGreen" (Debug.log "lastWord" (lastWord (Debug.log "board" newBoard)) |> allGreen)
+            (lastWord newBoard) |> allGreen
 
         playState =
             case ( hasEnded, lastWordAllGreen ) of
@@ -1414,8 +1416,14 @@ lightText =
 black =
     rgb255 0 0 0
 
+
 keyColor : Model -> Element.Color
-keyColor model = if model.useDarkMode then darken lightgrey else lightgrey
+keyColor model =
+    if model.useDarkMode then
+        darken lightgrey
+
+    else
+        lightgrey
 
 
 darken : Element.Color -> Element.Color
