@@ -2,8 +2,6 @@
 
 if [ $# -ne 1 ]; then
     optimize=--optimize
-else
-    optimize=--debug
 fi
 
 elm make $optimize --output app.js src/Main.elm
