@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+set -eo pipefail
+
 if [ $# -ne 1 ]; then
     optimize=--optimize
 fi
