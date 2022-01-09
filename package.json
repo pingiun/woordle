@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "elm-format": "^0.8.5",
+    "uglify-js": "^3.14.5"
+  }
+}
