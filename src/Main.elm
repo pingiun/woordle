@@ -262,7 +262,7 @@ modelDecoder todaysWord =
                     else
                         ( [], Playing )
             in
-            Debug.log "decoded"
+            -- Debug.log "decoded"
                 { board = startBoard ++ [ [] ]
                 , correctWord = String.toList todaysWord
                 , keyboard = List.foldr (\word keys -> updateKeyboard word keys) startKeyboard startBoard
