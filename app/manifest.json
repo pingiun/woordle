@@ -1,0 +1,46 @@
+{
+  "short_name": "Woordle",
+  "name": "Woordle",
+  "icons": [
+    {
+      "src": "images/woordle_logo_48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "images/woordle_logo_72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "images/woordle_logo_96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "images/woordle_logo_144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "images/woordle_logo_168x168.png",
+      "type": "image/png",
+      "sizes": "168x168"
+    },
+    {
+      "src": "images/woordle_logo_192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/woordle_logo_512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "https://woordle.nl",
+  "background_color": "#3CDA44",
+  "display": "standalone",
+  "theme_color": "#3CDA44",
+  "description": "Een dagelijks woordspelletje"
+}
