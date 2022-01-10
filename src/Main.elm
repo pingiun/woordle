@@ -530,7 +530,7 @@ createShare model =
         n =
             case model.playState of
                 Won ->
-                    String.fromInt (List.length model.board - 1)
+                    String.fromInt (boardLength model.board)
 
                 Lost ->
                     "X"
@@ -1094,8 +1094,8 @@ modalPadding model =
 
 
 rowHeight : Model -> Int -> Int
-rowHeight model height =
-    height * model.wordSize + 4 * (model.wordSize - 1)
+rowHeight model width =
+    round <| (toFloat width - 4 * toFloat (model.wordSize - 1)) / toFloat model.wordSize
 
 
 exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
@@ -1120,6 +1120,9 @@ viewShowHelp model =
         ( w, h ) =
             calcWinScreenWH model.window
 
+        widthLeft =
+            w - (2 * modalPadding model)
+
         ( first, second, third ) =
             exampleWords model
     in
@@ -1143,11 +1146,11 @@ viewShowHelp model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just first))
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just first))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
-                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just second))
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just second))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
-                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just third))
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just third))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
@@ -1192,6 +1195,21 @@ viewShowSettings model =
     let
         ( w, h ) =
             calcWinScreenWH model.window
+
+        linkToOther =
+            if model.wordSize == 5 then
+                paragraph [ Font.size 16 ]
+                    [ text "Ook al "
+                    , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                    , text " geprobeerd?"
+                    ]
+
+            else
+                paragraph [ Font.size 16 ]
+                    [ text "Ook al "
+                    , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                    , text " geprobeerd?"
+                    ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1217,6 +1235,7 @@ viewShowSettings model =
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
+                , linkToOther
                 ]
             ]
         )
@@ -1465,11 +1484,15 @@ woordleHeader model =
 calcBoardWH : Model -> { a | width : Int, height : Int } -> ( Int, Int )
 calcBoardWH model { width, height } =
     let
+        heightRatio = case (classifyDevice model.window).class of
+           Phone -> 0.5
+           _ -> 0.8
+
         w =
             List.minimum [ 300, toFloat width * 0.8 ] |> Maybe.withDefault 300
 
         h =
-            List.minimum [ 360, toFloat height * 0.5, w * 6 / toFloat model.wordSize ] |> Maybe.withDefault 360
+            List.minimum [ 360, toFloat height * heightRatio, w * 6 / toFloat model.wordSize ] |> Maybe.withDefault 360
     in
     ( floor (h * toFloat model.wordSize / 6), floor h )
 
