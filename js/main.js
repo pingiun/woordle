@@ -35,7 +35,7 @@ app.ports.save.subscribe(function (value) {
 });
 app.ports.share.subscribe(function (sharestring) {
   try {
-    if (/Mobi/i.test(navigator.userAgent) && navigator.share) {
+    if (/Mobi/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent) && navigator.share) {
       navigator.share({
         text: sharestring
       });

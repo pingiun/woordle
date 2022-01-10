@@ -8,11 +8,11 @@ import Element.Border as Border exposing (rounded)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
-import Json.Decode as D
+import Json.Decode as D exposing (Decoder)
 import Json.Encode as E
 import Set exposing (Set)
 import Task exposing (perform)
-import Time exposing (Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
+import Time exposing (Month(..), Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
 
 
 main : Program InitialData Model Msg
@@ -87,10 +87,33 @@ type PlayState
 -- gameState	{"boardState":["sober","","","","",""],"evaluations":[["correct","correct","correct","correct","correct"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"WIN","lastPlayedTs":1641640618222,"lastCompletedTs":1641640618222,"hardMode":false}
 -- gameState	{"boardState":["woord","","","","",""],"evaluations":[["absent","correct","absent","present","absent"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"IN_PROGRESS","hardMode":false,"lastPlayedTs":1641640996437}
 -- gameState	{"boardState":["woord","","","","",""],"evaluations":[["absent","correct","absent","present","absent"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"WIN","hardMode":false}
+-- statistics	{"currentStreak":0,"maxStreak":4,"guesses":{"1":4,"2":1,"3":0,"4":1,"5":0,"6":0,"fail":1},"winPercentage":86,"gamesPlayed":7,"gamesWon":6,"averageGuesses":2}
+-- statistics	{"currentStreak":0,"maxStreak":0,"gamesPlayed":0,"gamesWon":0,"guesses":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"fail":0}}
+-- statistics	{"currentStreak":0,"maxStreak":0,"gamesPlayed":0,"gamesWon":0,"guesses":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"fail":0},"winPercentage":null,"averageGuesses":0}
 
 
 type alias Toast =
     { content : Element Msg, removeAt : Posix }
+
+
+type alias Guesses =
+    { g1 : Int
+    , g2 : Int
+    , g3 : Int
+    , g4 : Int
+    , g5 : Int
+    , g6 : Int
+    , fail : Int
+    }
+
+
+type alias Statistics =
+    { guesses : Guesses
+    , currentStreak : Int
+    , maxStreak : Int
+    , gamesPlayed : Int
+    , gamesWon : Int
+    }
 
 
 type alias Model =
@@ -111,6 +134,7 @@ type alias Model =
     , showSettings : Bool
     , useDarkMode : Bool
     , useContrastMode : Bool
+    , statistics : Statistics
     }
 
 
@@ -164,6 +188,43 @@ playStateToJson state =
                 "FAIL"
 
 
+guessesToJson : Guesses -> E.Value
+guessesToJson guess =
+    E.object
+        [ ( "1", E.int guess.g1 )
+        , ( "2", E.int guess.g2 )
+        , ( "3", E.int guess.g3 )
+        , ( "4", E.int guess.g4 )
+        , ( "5", E.int guess.g5 )
+        , ( "6", E.int guess.g6 )
+        , ( "fail", E.int guess.fail )
+        ]
+
+
+extraStats : Statistics -> { winPercentage : Int, averageGuesses : Int }
+extraStats stats =
+    { winPercentage = toFloat stats.gamesPlayed / toFloat stats.gamesWon |> round
+    , averageGuesses = toFloat (stats.guesses.g1 + stats.guesses.g2 + stats.guesses.g3 + stats.guesses.g4 + stats.guesses.g5 + stats.guesses.g6) / 6 |> round
+    }
+
+
+statisticsToJson : Statistics -> E.Value
+statisticsToJson stats =
+    let
+        { winPercentage, averageGuesses } =
+            extraStats stats
+    in
+    E.object
+        [ ( "currentStreak", E.int stats.currentStreak )
+        , ( "maxStreak", E.int stats.maxStreak )
+        , ( "gamesPlayed", E.int stats.gamesPlayed )
+        , ( "gamesWon", E.int stats.gamesWon )
+        , ( "guesses", guessesToJson stats.guesses )
+        , ( "winPercentage", E.int winPercentage )
+        , ( "averageGuesses", E.int averageGuesses )
+        ]
+
+
 modelToJson : Model -> String
 modelToJson model =
     E.object
@@ -180,8 +241,14 @@ modelToJson model =
           )
         , ( "darkTheme", E.bool model.useDarkMode )
         , ( "colorBlindTheme", E.bool model.useContrastMode )
+        , ( "statistics", statisticsToJson model.statistics )
         ]
         |> E.encode 0
+
+
+getBoard : D.Decoder ( List String, List (Maybe (List String)) )
+getBoard =
+    D.map2 Tuple.pair getBoardState getEvaluations
 
 
 getBoardState : D.Decoder (List String)
@@ -250,10 +317,52 @@ getLastCompleted =
     D.maybe (D.map millisToPosix (D.field "lastCompletedTs" D.int))
 
 
+getGuesses : D.Decoder Guesses
+getGuesses =
+    D.field "guesses"
+        (D.map7
+            (\g1 g2 g3 g4 g5 g6 fail ->
+                { g1 = g1
+                , g2 = g2
+                , g3 = g3
+                , g4 = g4
+                , g5 = g5
+                , g6 = g6
+                , fail = fail
+                }
+            )
+            (D.field "1" D.int)
+            (D.field "2" D.int)
+            (D.field "3" D.int)
+            (D.field "4" D.int)
+            (D.field "5" D.int)
+            (D.field "6" D.int)
+            (D.field "fail" D.int)
+        )
+
+
+getStatistics : D.Decoder Statistics
+getStatistics =
+    D.map5
+        (\guesses currentStreak maxStreak gamesPlayed gamesWon ->
+            { guesses = guesses
+            , currentStreak = currentStreak
+            , maxStreak = maxStreak
+            , gamesPlayed = gamesPlayed
+            , gamesWon = gamesWon
+            }
+        )
+        getGuesses
+        (D.field "currentStreak" D.int)
+        (D.field "maxStreak" D.int)
+        (D.field "gamesPlayed" D.int)
+        (D.field "gamesWon" D.int)
+
+
 modelDecoder : String -> D.Decoder Model
 modelDecoder todaysWord =
     D.map8
-        (\bs e s state lastPlayed lastCompleted darkTheme colorBlindTheme ->
+        (\( bs, e ) s state lastPlayed lastCompleted darkTheme colorBlindTheme statistics ->
             let
                 ( startBoard, playState ) =
                     if s == todaysWord then
@@ -278,18 +387,37 @@ modelDecoder todaysWord =
             , offset = 0
             , showHelp = False
             , showSettings = False
-            , useDarkMode = darkTheme
-            , useContrastMode = colorBlindTheme
+            , useDarkMode = darkTheme |> Maybe.withDefault False
+            , useContrastMode = colorBlindTheme |> Maybe.withDefault False
+            , statistics = statistics |> Maybe.withDefault emptyStatistics
             }
         )
-        (D.field "gameState" getBoardState)
-        (D.field "gameState" getEvaluations)
+        (D.field "gameState" getBoard)
         (D.field "gameState" getSolution)
         (D.field "gameState" getGameStatus)
         (D.field "gameState" getLastPlayed)
         (D.field "gameState" getLastCompleted)
-        (D.field "darkTheme" D.bool)
-        (D.field "colorBlindTheme" D.bool)
+        (D.maybe (D.field "darkTheme" D.bool))
+        (D.maybe (D.field "colorBlindTheme" D.bool))
+        (D.maybe (D.field "statistics" getStatistics))
+
+
+emptyStatistics : Statistics
+emptyStatistics =
+    { guesses =
+        { g1 = 0
+        , g2 = 0
+        , g3 = 0
+        , g4 = 0
+        , g5 = 0
+        , g6 = 0
+        , fail = 0
+        }
+    , currentStreak = 0
+    , maxStreak = 0
+    , gamesPlayed = 0
+    , gamesWon = 0
+    }
 
 
 startKeyboard : Keyboard
@@ -325,6 +453,7 @@ modelFromJson inp todaysWord =
             , showSettings = False
             , useDarkMode = False
             , useContrastMode = False
+            , statistics = emptyStatistics
             }
 
 
@@ -587,6 +716,82 @@ handleCharacter x model =
                 model
 
 
+boardLength : List BoardWord -> Int
+boardLength board =
+    case board of
+        [] ->
+            0
+
+        _ :: [ [] ] ->
+            1
+
+        _ :: bs ->
+            1 + boardLength bs
+
+
+updateStatistics : List BoardWord -> Bool -> Statistics -> Statistics
+updateStatistics board won oldstats =
+    let
+        newStreak =
+            if won then
+                oldstats.currentStreak + 1
+
+            else
+                0
+
+        maxStreak =
+            if won && newStreak > oldstats.maxStreak then
+                newStreak
+
+            else
+                oldstats.maxStreak
+
+        oldGuesses =
+            oldstats.guesses
+
+        guesses =
+            boardLength board
+
+        newGuesses =
+            case ( guesses, won ) of
+                ( _, False ) ->
+                    { oldGuesses | fail = oldGuesses.fail + 1 }
+
+                ( 1, True ) ->
+                    { oldGuesses | g1 = oldGuesses.g1 + 1 }
+
+                ( 2, True ) ->
+                    { oldGuesses | g2 = oldGuesses.g2 + 1 }
+
+                ( 3, True ) ->
+                    { oldGuesses | g3 = oldGuesses.g3 + 1 }
+
+                ( 4, True ) ->
+                    { oldGuesses | g4 = oldGuesses.g4 + 1 }
+
+                ( 5, True ) ->
+                    { oldGuesses | g5 = oldGuesses.g5 + 1 }
+
+                ( 6, True ) ->
+                    { oldGuesses | g5 = oldGuesses.g6 + 1 }
+
+                _ ->
+                    -- Invalid
+                    oldGuesses
+    in
+    { guesses = newGuesses
+    , currentStreak = newStreak
+    , maxStreak = maxStreak
+    , gamesPlayed = oldstats.gamesPlayed + 1
+    , gamesWon =
+        if won then
+            oldstats.gamesWon + 1
+
+        else
+            oldstats.gamesWon
+    }
+
+
 processNewWord : Model -> Model
 processNewWord model =
     let
@@ -600,20 +805,20 @@ processNewWord model =
             List.length (lastWord model.board) == 5 && List.length model.board == 6
 
         lastWordAllGreen =
-            (lastWord newBoard) |> allGreen
+            lastWord newBoard |> allGreen
 
-        playState =
+        ( playState, newStatistics ) =
             case ( hasEnded, lastWordAllGreen ) of
                 ( _, True ) ->
-                    Won
+                    ( Won, updateStatistics newBoard True model.statistics )
 
                 ( True, False ) ->
-                    Lost
+                    ( Lost, updateStatistics newBoard False model.statistics )
 
                 ( False, False ) ->
-                    Playing
+                    ( Playing, model.statistics )
     in
-    { model | board = newBoard, keyboard = newKeyboard, playState = playState }
+    { model | board = newBoard, keyboard = newKeyboard, playState = playState, statistics = newStatistics }
 
 
 delLastLetter : List BoardWord -> List BoardWord
@@ -1317,7 +1522,7 @@ buttonOff model =
         lightgrey
 
     else
-        redColor
+        lightgrey
 
 
 correctColor : Model -> Element.Color
