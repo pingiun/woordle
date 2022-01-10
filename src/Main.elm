@@ -194,7 +194,7 @@ guessesToJson guess =
 
 extraStats : Statistics -> { winPercentage : Int, averageGuesses : Int }
 extraStats stats =
-    { winPercentage = toFloat stats.gamesPlayed / toFloat stats.gamesWon |> round
+    { winPercentage = (toFloat stats.gamesPlayed / toFloat stats.gamesWon) * 100 |> round
     , averageGuesses = toFloat (stats.guesses.g1 + stats.guesses.g2 + stats.guesses.g3 + stats.guesses.g4 + stats.guesses.g5 + stats.guesses.g6) / 6 |> round
     }
 
