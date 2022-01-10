@@ -1243,7 +1243,22 @@ viewShowSettings model =
 
 viewToasts : Model -> Element Msg
 viewToasts model =
-    column [ spacing 20, centerX, padding 20 ] <| List.map (\{ content } -> el [ centerX, Background.color white, Border.glow darkgrey 5, Border.rounded 10, padding 20 ] content) model.toasts
+    column [ spacing 20, centerX, padding 20 ] <|
+        List.map
+            (\{ content } ->
+                el
+                    [ centerX
+                    , Background.color white
+                    , Border.width 2
+                    , Border.color (textColor model)
+                    , Font.color (textColor model)
+                    , Background.color (pageBackground model)
+                    , Border.rounded 10
+                    , padding 20
+                    ]
+                    content
+            )
+            model.toasts
 
 
 body : Model -> Element Msg
@@ -1484,9 +1499,13 @@ woordleHeader model =
 calcBoardWH : Model -> { a | width : Int, height : Int } -> ( Int, Int )
 calcBoardWH model { width, height } =
     let
-        heightRatio = case (classifyDevice model.window).class of
-           Phone -> 0.5
-           _ -> 0.8
+        heightRatio =
+            case (classifyDevice model.window).class of
+                Phone ->
+                    0.5
+
+                _ ->
+                    0.8
 
         w =
             List.minimum [ 300, toFloat width * 0.8 ] |> Maybe.withDefault 300
