@@ -78,20 +78,6 @@ type PlayState
     | Lost
 
 
-
--- gameState	{"boardState":["gebit","","","","",""],"evaluations":[["correct","correct","correct","correct","correct"],null,null,null,null,null],"rowIndex":1,"solution":"gebit","gameStatus":"WIN","lastPlayedTs":1641562492706,"lastCompletedTs":1641562492706,"restoringFromLocalStorage":null,"hardMode":false}
--- statistics	{"currentStreak":2,"maxStreak":2,"guesses":{"1":1,"2":0,"3":0,"4":1,"5":0,"6":0,"fail":0},"winPercentage":100,"gamesPlayed":2,"gamesWon":2,"averageGuesses":3}
--- gameState	{"boardState":["SPOEL","","","","",""],"evaluations":[["correct","correct","correct","correct","correct"],null,null,null,null,null],"rowIndex":1,"solution":"spoel","restoringFromLocalStorage":null,"gameStatus":"IN_PROGRESS","hardMode":false}
--- gameState	{"boardState":["","","","","",""],"evaluations":[null,null,null,null,null,null],"rowIndex":0,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"IN_PROGRESS","hardMode":false}
--- gameState	{"boardState":["SOBER","","","","",""],"evaluations":[["correct","correct","correct","correct","correct"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"WIN","lastPlayedTs":1641562492706,"lastCompletedTs":1641562492706,"hardMode":false}
--- gameState	{"boardState":["sober","","","","",""],"evaluations":[["correct","correct","correct","correct","correct"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"WIN","lastPlayedTs":1641640618222,"lastCompletedTs":1641640618222,"hardMode":false}
--- gameState	{"boardState":["woord","","","","",""],"evaluations":[["absent","correct","absent","present","absent"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"IN_PROGRESS","hardMode":false,"lastPlayedTs":1641640996437}
--- gameState	{"boardState":["woord","","","","",""],"evaluations":[["absent","correct","absent","present","absent"],null,null,null,null,null],"rowIndex":1,"solution":"sober","restoringFromLocalStorage":null,"gameStatus":"WIN","hardMode":false}
--- statistics	{"currentStreak":0,"maxStreak":4,"guesses":{"1":4,"2":1,"3":0,"4":1,"5":0,"6":0,"fail":1},"winPercentage":86,"gamesPlayed":7,"gamesWon":6,"averageGuesses":2}
--- statistics	{"currentStreak":0,"maxStreak":0,"gamesPlayed":0,"gamesWon":0,"guesses":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"fail":0}}
--- statistics	{"currentStreak":0,"maxStreak":0,"gamesPlayed":0,"gamesWon":0,"guesses":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"fail":0},"winPercentage":null,"averageGuesses":0}
-
-
 type alias Toast =
     { content : Element Msg, removeAt : Posix }
 
@@ -135,6 +121,7 @@ type alias Model =
     , useDarkMode : Bool
     , useContrastMode : Bool
     , statistics : Statistics
+    , wordSize : Int
     }
 
 
@@ -164,11 +151,15 @@ colorToJson color =
             E.string "absent"
 
 
-colorsToJson : Maybe BoardWord -> E.Value
-colorsToJson bw_ =
+colorsToJson : Model -> Maybe BoardWord -> E.Value
+colorsToJson model bw_ =
     case ( bw_, bw_ |> Maybe.map List.length |> Maybe.withDefault 0 ) of
-        ( Just bw, 5 ) ->
-            E.list colorToJson bw
+        ( Just bw, l ) ->
+            if l == model.wordSize then
+                E.list colorToJson bw
+
+            else
+                E.null
 
         ( _, _ ) ->
             E.null
@@ -225,13 +216,23 @@ statisticsToJson stats =
         ]
 
 
+storageSuffix : Model -> String
+storageSuffix model =
+    case model.wordSize of
+        5 ->
+            ""
+
+        l ->
+            String.fromInt l
+
+
 modelToJson : Model -> String
 modelToJson model =
     E.object
-        [ ( "gameState"
+        [ ( "gameState" ++ storageSuffix model
           , E.object
                 [ ( "boardState", E.list boardWordToJsonString (fillList model.board 6) )
-                , ( "evaluations", E.list colorsToJson (fillList model.board 6) )
+                , ( "evaluations", E.list (colorsToJson model) (fillList model.board 6) )
                 , ( "rowIndex", E.int (List.length model.board - 1) )
                 , ( "solution", E.string (String.fromList model.correctWord) )
                 , ( "restoringFromLocalStorage", E.null )
@@ -241,7 +242,7 @@ modelToJson model =
           )
         , ( "darkTheme", E.bool model.useDarkMode )
         , ( "colorBlindTheme", E.bool model.useContrastMode )
-        , ( "statistics", statisticsToJson model.statistics )
+        , ( "statistics" ++ storageSuffix model, statisticsToJson model.statistics )
         ]
         |> E.encode 0
 
@@ -359,8 +360,8 @@ getStatistics =
         (D.field "gamesWon" D.int)
 
 
-modelDecoder : String -> D.Decoder Model
-modelDecoder todaysWord =
+modelDecoder : Int -> String -> D.Decoder Model
+modelDecoder wordSize todaysWord =
     D.map8
         (\( bs, e ) s state lastPlayed lastCompleted darkTheme colorBlindTheme statistics ->
             let
@@ -390,6 +391,7 @@ modelDecoder todaysWord =
             , useDarkMode = darkTheme |> Maybe.withDefault False
             , useContrastMode = colorBlindTheme |> Maybe.withDefault False
             , statistics = statistics |> Maybe.withDefault emptyStatistics
+            , wordSize = 5
             }
         )
         (D.field "gameState" getBoard)
@@ -428,9 +430,9 @@ startKeyboard =
     )
 
 
-modelFromJson : D.Value -> String -> Model
-modelFromJson inp todaysWord =
-    case D.decodeValue (modelDecoder todaysWord) inp of
+modelFromJson : D.Value -> Int -> String -> Model
+modelFromJson inp wordSize todaysWord =
+    case D.decodeValue (modelDecoder wordSize todaysWord) inp of
         Ok model ->
             model
 
@@ -454,6 +456,7 @@ modelFromJson inp todaysWord =
             , useDarkMode = False
             , useContrastMode = False
             , statistics = emptyStatistics
+            , wordSize = 5
             }
 
 
@@ -463,6 +466,7 @@ type alias InitialData =
     , allWords : List String
     , todaysWord : String
     , offset : Int
+    , wordSize : Int
     }
 
 
@@ -472,9 +476,10 @@ init flags url key_ =
         model =
             modelFromJson
                 flags.localStorage
+                flags.wordSize
                 flags.todaysWord
     in
-    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset }
+    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize }
     , perform NewZone here
     )
 
@@ -532,24 +537,41 @@ createShare model =
 
                 Playing ->
                     "???"
+
+        ( woordle, extraOffset ) =
+            case model.wordSize of
+                5 ->
+                    ( "Woordle ", 202 )
+
+                l ->
+                    ( "Woordle" ++ String.fromInt l ++ " ", 1 )
     in
-    "Woordle " ++ String.fromInt (model.offset + 202) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
+    woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
 
 
-blokje : CharGuess -> String
-blokje char =
-    case char of
-        New _ ->
+blokje : Model -> CharGuess -> String
+blokje model char =
+    case ( char, model.useDarkMode, model.useContrastMode ) of
+        ( New _, _, _ ) ->
             ""
 
-        Correct _ ->
+        ( Correct _, _, False ) ->
             "🟩"
 
-        Place _ ->
+        ( Correct _, _, True ) ->
+            "🟧"
+
+        ( Place _, _, False ) ->
             "🟨"
 
-        Wrong _ ->
-            "⬜️"
+        ( Place _, _, True ) ->
+            "🟦"
+
+        ( Wrong _, False, _ ) ->
+            "⬜"
+
+        ( Wrong _, True, _ ) ->
+            "⬛"
 
 
 blokjes : Model -> List BoardWord -> String
@@ -559,10 +581,10 @@ blokjes model board =
             ""
 
         word :: [ [] ] ->
-            word |> List.map blokje |> String.join ""
+            word |> List.map (blokje model) |> String.join ""
 
         word :: words ->
-            (word |> List.map blokje |> String.join "") ++ "\n" ++ blokjes model words
+            (word |> List.map (blokje model) |> String.join "") ++ "\n" ++ blokjes model words
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -635,10 +657,6 @@ update msg model =
                 ( Share, _ ) ->
                     share (createShare newModel)
 
-                -- ( _, Won ) ->
-                --     perform NewTime now
-                -- ( _, Lost ) ->
-                --     perform NewTime now
                 _ ->
                     Cmd.none
     in
@@ -710,7 +728,7 @@ handleCharacter x model =
 
         thekey ->
             if Char.isAlpha thekey then
-                { model | board = updateLastWord (Char.toLower thekey) model.board }
+                { model | board = updateLastWord model (Char.toLower thekey) model.board }
 
             else
                 model
@@ -802,7 +820,7 @@ processNewWord model =
             updateKeyboard (lastWord newBoard) model.keyboard
 
         hasEnded =
-            List.length (lastWord model.board) == 5 && List.length model.board == 6
+            List.length (lastWord model.board) == model.wordSize && List.length model.board == 6
 
         lastWordAllGreen =
             lastWord newBoard |> allGreen
@@ -924,16 +942,15 @@ checkLastWord : Model -> List BoardWord -> List BoardWord
 checkLastWord model words =
     case words of
         w :: [] ->
-            case List.length w of
-                5 ->
-                    [ colorLetters
-                        w
-                        model.correctWord
-                    , []
-                    ]
+            if List.length w == model.wordSize then
+                [ colorLetters
+                    w
+                    model.correctWord
+                , []
+                ]
 
-                _ ->
-                    [ w ]
+            else
+                [ w ]
 
         [] ->
             []
@@ -942,22 +959,21 @@ checkLastWord model words =
             w :: checkLastWord model ws
 
 
-updateLastWord : Char -> List BoardWord -> List BoardWord
-updateLastWord thekey words =
+updateLastWord : Model -> Char -> List BoardWord -> List BoardWord
+updateLastWord model thekey words =
     case words of
         w :: [] ->
-            case List.length w of
-                5 ->
-                    [ w ]
+            if List.length w == model.wordSize then
+                [ w ]
 
-                _ ->
-                    [ w ++ [ New thekey ] ]
+            else
+                [ w ++ [ New thekey ] ]
 
         [] ->
             [ [ New thekey ] ]
 
         w :: ws ->
-            w :: updateLastWord thekey ws
+            w :: updateLastWord model thekey ws
 
 
 extractChar : CharGuess -> Char
@@ -1029,9 +1045,19 @@ updateKeyboard word (( first, second, third ) as keyboard_) =
             updateKeyboard xs ( updateRow x first, updateRow x second, updateRow x third )
 
 
+titel : Model -> String
+titel model =
+    case model.wordSize of
+        5 ->
+            "WOORDLE"
+
+        l ->
+            "WOORDLE" ++ String.fromInt l
+
+
 view : Model -> Document Msg
 view model =
-    { title = "WOORDLE | Elke dag een nieuwe puzzel"
+    { title = titel model ++ " | Elke dag een nieuwe puzzel"
     , body =
         [ Element.layout
             [ Background.color (pageBackground model)
@@ -1067,11 +1093,35 @@ modalPadding model =
             60
 
 
+rowHeight : Model -> Int -> Int
+rowHeight model height =
+    height * model.wordSize + 4 * (model.wordSize - 1)
+
+
+exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
+exampleWords model =
+    case model.wordSize of
+        5 ->
+            ( [ Correct 'W', New 'O', New 'O', New 'R', New 'D' ]
+            , [ New 'P', Place 'U', New 'P', New 'I', New 'L' ]
+            , [ New 'T', New 'R', New 'O', Wrong 'E', New 'P' ]
+            )
+
+        _ ->
+            ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
+            , [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+            , [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+            )
+
+
 viewShowHelp : Model -> Element Msg
 viewShowHelp model =
     let
         ( w, h ) =
             calcWinScreenWH model.window
+
+        ( first, second, third ) =
+            exampleWords model
     in
     el [ Background.color darkened_bg, onClick (ShowHelp False), centerX, centerY, width fill, height fill ]
         (column
@@ -1088,21 +1138,21 @@ viewShowHelp model =
             [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text "WOORDLE"), text " in 6 keer." ]
+                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
                 , paragraph [] [ text "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , el [ height (px 50), width (px 276), Font.color white ] (vakjesRow model (Just [ Correct 'W', New 'O', New 'O', New 'R', New 'D' ]))
+                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just first))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
-                , el [ height (px 50), width (px 276), Font.color white ] (vakjesRow model (Just [ New 'P', Place 'U', New 'P', New 'I', New 'L' ]))
+                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just second))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
-                , el [ height (px 50), width (px 276), Font.color white ] (vakjesRow model (Just [ New 'T', New 'R', New 'O', Wrong 'E', New 'P' ]))
+                , el [ height (px 50), width (px (rowHeight model 50)) ] (vakjesRow model (Just third))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Elke dag is er een nieuwe ", el [ Font.bold ] (text "WOORDLE"), text " beschikbaar!" ]
+                , paragraph [] [ text "Elke dag is er een nieuwe ", el [ Font.bold ] (text (titel model)), text " beschikbaar!" ]
                 ]
             ]
         )
@@ -1267,6 +1317,21 @@ viewEndScreen model =
     let
         ( w, h ) =
             calcWinScreenWH model.window
+
+        linkToOther =
+            if model.wordSize == 5 then
+                paragraph [ Font.size 16 ]
+                    [ text "Ook al "
+                    , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                    , text " geprobeerd?"
+                    ]
+
+            else
+                paragraph [ Font.size 16 ]
+                    [ text "Ook al "
+                    , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                    , text " geprobeerd?"
+                    ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1285,18 +1350,74 @@ viewEndScreen model =
                 , el [ centerX, Font.bold, Font.size 45 ] (text (model.correctWord |> List.map Char.toUpper |> String.fromList))
                 , el [ height (px 40) ] Element.none
                 , row [ width fill, spaceEvenly ]
-                    [ column [ spacing 4 ] [ paragraph [ centerX, Font.center ] [ text "Volgende WOORDLE" ], el [ centerX, Font.family [ Font.monospace ], Font.size 28 ] (text (nextWordle model)) ]
+                    [ column [ spacing 4 ] [ paragraph [ centerX, Font.center ] [ text ("Volgende " ++ titel model) ], el [ centerX, Font.family [ Font.monospace ], Font.size 28 ] (text (nextWordle model)) ]
                     , button [ Background.color greenColor, Element.mouseDown [ Background.color (darken greenColor) ], padding 20, rounded 20 ] { label = text "Delen", onPress = Just Share }
                     ]
                 , el [ height (px 40) ] Element.none
+                , viewStatitics model
                 , paragraph [ Font.size 16 ]
-                    [ text "Kan je niet wachten op de volgende WOORDLE? Probeer ook de "
+                    [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
                     , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
                     , text " (in het Engels)!"
                     ]
+                , linkToOther
                 ]
             ]
         )
+
+
+viewStatitics : Model -> Element Msg
+viewStatitics model =
+    let
+        extra =
+            extraStats model.statistics
+
+        -- modal width minus padding and first number
+        widthLeft =
+            (calcWinScreenWH model.window |> Tuple.first) - (2 * modalPadding model) - 25
+
+        maxGuesses =
+            List.maximum [ model.statistics.guesses.g1, model.statistics.guesses.g2, model.statistics.guesses.g3, model.statistics.guesses.g4, model.statistics.guesses.g5, model.statistics.guesses.g6 ] |> Maybe.withDefault 1
+
+        bar n =
+            let
+                bgColor =
+                    if n == maxGuesses then
+                        correctColor model
+
+                    else
+                        wrongColor model
+            in
+            el
+                [ Background.color bgColor
+                , height (px 18)
+                , width (px (max 20 (round (toFloat widthLeft / toFloat maxGuesses * toFloat n))))
+                , inFront (el [ alignRight, paddingXY 5 0, Font.color (vakjeTextColor model) ] <| text (String.fromInt n))
+                ]
+                Element.none
+    in
+    column [ width fill, spacing 10 ]
+        [ el [ Font.bold, centerX ] (text "STATISTIEK")
+        , row [ width fill, spacing 10 ]
+            [ column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.gamesPlayed ++ "×"), el [ centerX, Font.size 14 ] <| text "gespeeld" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt extra.winPercentage), el [ centerX, Font.size 14 ] <| text "Win %" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.currentStreak), el [ centerX, Font.size 14 ] <| text "Huidige reeks" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
+            ]
+        , el [ height (px 10) ] Element.none
+        , el [ Font.bold, centerX ] (text "GOK VERDELING")
+        , column [ spacing 5 ]
+            [ row [ Font.size 18, spacing 5 ] [ text "1", bar model.statistics.guesses.g1 ]
+            , row [ Font.size 18, spacing 5 ] [ text "2", bar model.statistics.guesses.g2 ]
+            , row [ Font.size 18, spacing 5 ] [ text "3", bar model.statistics.guesses.g3 ]
+            , row [ Font.size 18, spacing 5 ] [ text "4", bar model.statistics.guesses.g4 ]
+            , row [ Font.size 18, spacing 5 ] [ text "5", bar model.statistics.guesses.g5 ]
+            , row [ Font.size 18, spacing 5 ] [ text "6", bar model.statistics.guesses.g6 ]
+            ]
+        , el [ height (px 10) ] Element.none
+        , el [ Border.width 1, width fill ] Element.none
+        , el [ height (px 10) ] Element.none
+        ]
 
 
 helpButton : Element Msg
@@ -1336,36 +1457,35 @@ woordleHeader model =
         , Border.widthEach { bottom = 2, left = 0, right = 0, top = 0 }
         ]
         [ helpButton
-        , el [ centerY, centerX ] (text "WOORDLE")
+        , el [ centerY, centerX ] (text (titel model))
         , settingsButton
         ]
 
 
-calcBoardWH : { a | width : Int, height : Int } -> ( Int, Int )
-calcBoardWH { width, height } =
+calcBoardWH : Model -> { a | width : Int, height : Int } -> ( Int, Int )
+calcBoardWH model { width, height } =
     let
         w =
             List.minimum [ 300, toFloat width * 0.8 ] |> Maybe.withDefault 300
 
         h =
-            List.minimum [ 360, toFloat height * 0.5, w * 6 / 5 ] |> Maybe.withDefault 360
+            List.minimum [ 360, toFloat height * 0.5, w * 6 / toFloat model.wordSize ] |> Maybe.withDefault 360
     in
-    ( floor (h * 5 / 6), floor h )
+    ( floor (h * toFloat model.wordSize / 6), floor h )
 
 
 vakjes : Model -> Element msg
 vakjes model =
     let
         ( w, h ) =
-            calcBoardWH model.window
+            calcBoardWH model model.window
     in
     column
         [ spacing 4
         , centerX
         , width (px w)
         , height (px h)
-        , Font.color (vakjeTextColor model)
-        , Font.size (floor (toFloat h / 7.1))
+        , Font.size (floor (toFloat h / 7.5))
         ]
         (List.map (vakjesRow model) (List.take 6 (fillList model.board 6)))
 
@@ -1381,7 +1501,7 @@ vakjesRow model rij =
                 Just x ->
                     x
     in
-    row [ spacing 4, width fill, height fill ] (List.map (vakje model) (fillList rij_ 5))
+    row [ spacing 4, width fill, height fill ] (List.map (vakje model) (fillList rij_ model.wordSize))
 
 
 fillList : List a -> Int -> List (Maybe a)
@@ -1419,8 +1539,16 @@ vakje model elem =
 
                 Just (Wrong x) ->
                     ( Background.color (wrongColor model), wrongColor model, text (charToString (Char.toUpper x)) )
+
+        fgColor =
+            case elem of
+                Just (New _) ->
+                    newVakjeTextColor model
+
+                _ ->
+                    vakjeTextColor model
     in
-    el [ width fill, height fill, Border.width 3, Border.solid, Border.color borderColor, bgColor ]
+    el [ width fill, height fill, Border.width 3, Border.solid, Border.color borderColor, bgColor, Font.color fgColor ]
         (el [ centerX, centerY ]
             c
         )
@@ -1612,6 +1740,14 @@ vakjeTextColor model =
 
     else
         white
+
+
+newVakjeTextColor model =
+    if model.useDarkMode then
+        lightText
+
+    else
+        black
 
 
 lightText =
