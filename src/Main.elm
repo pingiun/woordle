@@ -558,7 +558,7 @@ createShare model =
                     ( "Woordle ", 202 )
 
                 l ->
-                    ( "Woordle" ++ String.fromInt l ++ " ", 1 )
+                    if language == English then ("Wordle6", 1) else ( "Woordle" ++ String.fromInt l ++ " ", 1 )
     in
     woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
 
