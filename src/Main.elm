@@ -1133,7 +1133,7 @@ exampleWords model =
         _ ->
             ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
             , if language == English then [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] else [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
-            , [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+            , if language == English then [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ] else [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
             )
 
 
