@@ -26,7 +26,8 @@ var app = Elm.Main.init({
     allWords: all_words,
     todaysWord: todays_word,
     offset: offset,
-    wordSize: 6
+    wordSize: 6,
+    startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 });
 app.ports.save.subscribe(function (value) {

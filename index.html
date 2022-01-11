@@ -29,11 +29,16 @@
     div[role="button"] {
       touch-action: manipulation;
     }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: rgb(21, 23, 20); color: white;
+      }
+    }
   </style>
 </head>
 
 <body>
-  Deze pagina werkt alleen met javascript ingeschakeld.
+  <noscript>Deze pagina werkt alleen met javascript ingeschakeld.</noscript>
 <script type="text/javascript" src="/js/main.min.js"></script>
 </body>
 </html>

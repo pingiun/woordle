@@ -430,8 +430,8 @@ startKeyboard =
     )
 
 
-modelFromJson : D.Value -> Int -> String -> Model
-modelFromJson inp wordSize todaysWord =
+modelFromJson : D.Value -> Int -> String -> Bool -> Model
+modelFromJson inp wordSize todaysWord startDarkMode =
     case D.decodeValue (modelDecoder wordSize todaysWord) inp of
         Ok model ->
             model
@@ -453,7 +453,7 @@ modelFromJson inp wordSize todaysWord =
             , offset = 0
             , showHelp = True
             , showSettings = False
-            , useDarkMode = False
+            , useDarkMode = startDarkMode
             , useContrastMode = False
             , statistics = emptyStatistics
             , wordSize = 5
@@ -467,6 +467,7 @@ type alias InitialData =
     , todaysWord : String
     , offset : Int
     , wordSize : Int
+    , startDarkMode : Bool
     }
 
 
@@ -478,6 +479,7 @@ init flags url key_ =
                 flags.localStorage
                 flags.wordSize
                 flags.todaysWord
+                flags.startDarkMode
     in
     ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize }
     , perform NewZone here
