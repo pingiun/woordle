@@ -1509,11 +1509,22 @@ calcBoardWH model { width, height } =
                 _ ->
                     0.8
 
+        ( wMinimum, hMinimum ) =
+            case ( (classifyDevice model.window).class, model.wordSize ) of
+                ( Phone, _ ) ->
+                    ( 300, 360 )
+
+                ( _, 5 ) ->
+                    ( 300, 360 )
+
+                ( _, _ ) ->
+                    ( 400, 480 )
+
         w =
-            List.minimum [ 300, toFloat width * 0.8 ] |> Maybe.withDefault 300
+            List.minimum [ wMinimum, toFloat width * 0.8 ] |> Maybe.withDefault wMinimum
 
         h =
-            List.minimum [ 360, toFloat height * heightRatio, w * 6 / toFloat model.wordSize ] |> Maybe.withDefault 360
+            List.minimum [ hMinimum, toFloat height * heightRatio, w * 6 / toFloat model.wordSize ] |> Maybe.withDefault hMinimum
     in
     ( floor (h * toFloat model.wordSize / 6), floor h )
 
