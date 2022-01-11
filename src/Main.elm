@@ -1,105 +1,49 @@
 port module Main exposing (..)
 
 import Browser exposing (Document)
-import Browser.Events exposing (onKeyDown, onKeyPress, onResize)
-import Element exposing (Color, DeviceClass(..), Element, alignBottom, alignLeft, alignRight, centerX, centerY, classifyDevice, column, el, fill, fromRgb, height, inFront, maximum, newTabLink, padding, paddingEach, paddingXY, paragraph, px, rgb255, rgba255, row, scrollbars, shrink, spaceEvenly, spacing, text, toRgb, width)
+import Browser.Events exposing (onKeyDown, onResize)
+import Element
+    exposing
+        ( DeviceClass(..)
+        , Element
+        , alignBottom
+        , alignLeft
+        , alignRight
+        , centerX
+        , centerY
+        , classifyDevice
+        , column
+        , el
+        , fill
+        , fromRgb
+        , height
+        , inFront
+        , maximum
+        , newTabLink
+        , padding
+        , paddingEach
+        , paddingXY
+        , paragraph
+        , px
+        , rgb255
+        , rgba255
+        , row
+        , scrollbars
+        , spaceEvenly
+        , spacing
+        , toRgb
+        , width
+        )
 import Element.Background as Background
 import Element.Border as Border exposing (rounded)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
-import Json.Decode as D exposing (Decoder)
+import Json.Decode as D
 import Json.Encode as E
 import Set exposing (Set)
 import Task exposing (perform)
 import Time exposing (Month(..), Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
-
-
-main : Program InitialData Model Msg
-main =
-    Browser.application
-        { init = init
-        , update = update
-        , view = view
-        , subscriptions = subscriptions
-        , onUrlRequest = onUrlRequest
-        , onUrlChange = onUrlChange
-        }
-
-
-type Msg
-    = TouchKey Char
-    | Keyboard Key
-    | NewSize Int Int
-    | NewTime Posix
-    | NewZone Zone
-    | Share
-    | AddToast Toast
-    | DismissEndScreen
-    | ShowHelp Bool
-    | ShowSettings Bool
-    | SetDarkMode Bool
-    | SetContrastMode Bool
-    | None
-
-
-port save : String -> Cmd msg
-
-
-port share : String -> Cmd msg
-
-
-port makeToast : (String -> msg) -> Sub msg
-
-
-type Key
-    = Character Char
-    | Control String
-
-
-type CharGuess
-    = New Char
-    | Correct Char
-    | Place Char
-    | Wrong Char
-
-
-type alias BoardWord =
-    List CharGuess
-
-
-type alias Keyboard =
-    ( BoardWord, BoardWord, BoardWord )
-
-
-type PlayState
-    = Playing
-    | Won
-    | Lost
-
-
-type alias Toast =
-    { content : Element Msg, removeAt : Posix }
-
-
-type alias Guesses =
-    { g1 : Int
-    , g2 : Int
-    , g3 : Int
-    , g4 : Int
-    , g5 : Int
-    , g6 : Int
-    , fail : Int
-    }
-
-
-type alias Statistics =
-    { guesses : Guesses
-    , currentStreak : Int
-    , maxStreak : Int
-    , gamesPlayed : Int
-    , gamesWon : Int
-    }
 
 
 type alias Model =
@@ -123,6 +67,107 @@ type alias Model =
     , statistics : Statistics
     , wordSize : Int
     }
+
+
+type alias BoardWord =
+    List CharGuess
+
+
+type CharGuess
+    = New Char
+    | Correct Char
+    | Place Char
+    | Wrong Char
+
+
+type alias Keyboard =
+    ( BoardWord, BoardWord, BoardWord )
+
+
+type PlayState
+    = Playing
+    | Won
+    | Lost
+
+
+type alias Toast =
+    { content : Element Msg, removeAt : Posix }
+
+
+type alias Statistics =
+    { guesses : Guesses
+    , currentStreak : Int
+    , maxStreak : Int
+    , gamesPlayed : Int
+    , gamesWon : Int
+    }
+
+
+type alias Guesses =
+    { g1 : Int
+    , g2 : Int
+    , g3 : Int
+    , g4 : Int
+    , g5 : Int
+    , g6 : Int
+    , fail : Int
+    }
+
+
+type Msg
+    = TouchKey Char
+    | Keyboard Key
+    | NewSize Int Int
+    | NewTime Posix
+    | NewZone Zone
+    | Share
+    | AddToast Toast
+    | DismissEndScreen
+    | ShowHelp Bool
+    | ShowSettings Bool
+    | SetDarkMode Bool
+    | SetContrastMode Bool
+    | None
+
+
+type Key
+    = Character Char
+    | Control String
+
+
+type alias InitialData =
+    { windowSize : { width : Int, height : Int }
+    , localStorage : D.Value
+    , allWords : List String
+    , todaysWord : String
+    , offset : Int
+    , wordSize : Int
+    , startDarkMode : Bool
+    }
+
+
+init : InitialData -> b -> c -> ( Model, Cmd Msg )
+init flags url key_ =
+    let
+        model =
+            modelFromJson
+                flags.localStorage
+                flags.wordSize
+                flags.todaysWord
+                flags.startDarkMode
+    in
+    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize }
+    , perform NewZone here
+    )
+
+
+port save : String -> Cmd msg
+
+
+port share : String -> Cmd msg
+
+
+port makeToast : (String -> msg) -> Sub msg
 
 
 boardWordToJsonString : Maybe BoardWord -> E.Value
@@ -460,32 +505,6 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             }
 
 
-type alias InitialData =
-    { windowSize : { width : Int, height : Int }
-    , localStorage : D.Value
-    , allWords : List String
-    , todaysWord : String
-    , offset : Int
-    , wordSize : Int
-    , startDarkMode : Bool
-    }
-
-
-init : InitialData -> b -> c -> ( Model, Cmd Msg )
-init flags url key_ =
-    let
-        model =
-            modelFromJson
-                flags.localStorage
-                flags.wordSize
-                flags.todaysWord
-                flags.startDarkMode
-    in
-    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize }
-    , perform NewZone here
-    )
-
-
 inTwoSeconds : Posix -> Posix
 inTwoSeconds time =
     posixToMillis time + 2000 |> millisToPosix
@@ -514,16 +533,6 @@ toKey string =
 
         _ ->
             Keyboard (Control string)
-
-
-onUrlRequest : a -> Msg
-onUrlRequest url =
-    None
-
-
-onUrlChange : a -> Msg
-onUrlChange url =
-    None
 
 
 createShare : Model -> String
@@ -1059,7 +1068,16 @@ titel model =
 
 view : Model -> Document Msg
 view model =
-    { title = titel model ++ " | Elke dag een nieuwe puzzel"
+    let
+        titleText =
+            case language of
+                Dutch ->
+                    titel model ++ " | Elke dag een nieuwe puzzel"
+
+                English ->
+                    "WORDLE6 | Six letter Wordle"
+    in
+    { title = titleText
     , body =
         [ Element.layout
             [ Background.color (pageBackground model)
@@ -1111,7 +1129,7 @@ exampleWords model =
 
         _ ->
             ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
-            , [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+            , if language == English then [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] else [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
             , [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
             )
 
@@ -1199,7 +1217,10 @@ viewShowSettings model =
             calcWinScreenWH model.window
 
         linkToOther =
-            if model.wordSize == 5 then
+            if language == English then
+                Element.none
+
+            else if model.wordSize == 5 then
                 paragraph [ Font.size 16 ]
                     [ text "Ook al "
                     , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
@@ -1237,6 +1258,8 @@ viewShowSettings model =
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
+                , if language == English then paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ] else Element.none
+                , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
                 ]
             ]
@@ -1355,7 +1378,14 @@ viewEndScreen model =
             calcWinScreenWH model.window
 
         linkToOther =
-            if model.wordSize == 5 then
+            if language == English then
+                paragraph [ Font.size 16 ]
+                    [ Element.text "Already done the regular "
+                    , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                    , Element.text " today?"
+                    ]
+
+            else if model.wordSize == 5 then
                 paragraph [ Font.size 16 ]
                     [ text "Ook al "
                     , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
@@ -1383,19 +1413,23 @@ viewEndScreen model =
             [ column [ centerX, centerY, spacing 10, scrollbars, height fill ]
                 [ el [ centerX ] (text (endText model))
                 , el [ centerX ] (text "Het woord was: ")
-                , el [ centerX, Font.bold, Font.size 45 ] (text (model.correctWord |> List.map Char.toUpper |> String.fromList))
+                , el [ centerX, Font.bold, Font.size 45 ] (Element.text (model.correctWord |> List.map Char.toUpper |> String.fromList))
                 , el [ height (px 40) ] Element.none
                 , row [ width fill, spaceEvenly ]
-                    [ column [ spacing 4 ] [ paragraph [ centerX, Font.center ] [ text ("Volgende " ++ titel model) ], el [ centerX, Font.family [ Font.monospace ], Font.size 28 ] (text (nextWordle model)) ]
+                    [ column [ spacing 4 ] [ paragraph [ centerX, Font.center ] [ text ("Volgende " ++ titel model) ], el [ centerX, Font.family [ Font.monospace ], Font.size 28 ] (Element.text (nextWordle model)) ]
                     , button [ Background.color greenColor, Element.mouseDown [ Background.color (darken greenColor) ], padding 20, rounded 20 ] { label = text "Delen", onPress = Just Share }
                     ]
                 , el [ height (px 40) ] Element.none
                 , viewStatitics model
-                , paragraph [ Font.size 16 ]
-                    [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
-                    , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                    , text " (in het Engels)!"
-                    ]
+                , if language == Dutch then
+                    paragraph [ Font.size 16 ]
+                        [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
+                        , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                        , text " (in het Engels)!"
+                        ]
+
+                  else
+                    Element.none
                 , linkToOther
                 ]
             ]
@@ -1435,10 +1469,10 @@ viewStatitics model =
     column [ width fill, spacing 10 ]
         [ el [ Font.bold, centerX ] (text "STATISTIEK")
         , row [ width fill, spacing 10 ]
-            [ column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.gamesPlayed ++ "×"), el [ centerX, Font.size 14 ] <| text "gespeeld" ]
-            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt extra.winPercentage), el [ centerX, Font.size 14 ] <| text "Win %" ]
-            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.currentStreak), el [ centerX, Font.size 14 ] <| text "Huidige reeks" ]
-            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
+            [ column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.gamesPlayed ++ "×"), el [ centerX, Font.size 14 ] <| text "gespeeld" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt extra.winPercentage), el [ centerX, Font.size 14 ] <| text "Win %" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.currentStreak), el [ centerX, Font.size 14 ] <| text "Huidige reeks" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
             ]
         , el [ height (px 10) ] Element.none
         , el [ Font.bold, centerX ] (text "GOK VERDELING")
@@ -1829,3 +1863,155 @@ darken c =
             toRgb c
     in
     fromRgb { red = red * 0.8, green = green * 0.8, blue = blue * 0.8, alpha = alpha }
+
+
+type Language
+    = English
+    | Dutch
+
+
+language : Language
+language =
+    {- The line below is replaced with in export.html such that Dutch is commented and the end of the comment ends up below -}
+    {- English -}
+    Dutch
+
+
+
+-- -}
+
+
+text : String -> Element msg
+text str =
+    case language of
+        Dutch ->
+            Element.text str
+
+        English ->
+            Element.text <|
+                case str of
+                    "ENTER" ->
+                        "ENTER"
+
+                    "..." ->
+                        "..."
+
+                    "WOORDLE6" ->
+                        "WORDLE6"
+
+                    "INSTELLINGEN" ->
+                        "SETTINGS"
+
+                    "AAN" ->
+                        "ON"
+
+                    "UIT" ->
+                        "OFF"
+
+                    "Donker thema" ->
+                        "Dark Theme"
+
+                    "Hoog contrast vakjes" ->
+                        "Color Blind Mode"
+
+                    "Feedback: " ->
+                        "Feedback: "
+
+                    "yele op Twitter" ->
+                        "yele on Twitter"
+
+                    "INSTRUCTIES" ->
+                        "INSTRUCTIONS"
+
+                    "Je hebt gewonnen!!" ->
+                        "You won!!"
+
+                    "Je hebt verloren..." -> "You lost..."
+
+                    "Het woord was: " ->
+                        "The word was"
+
+                    "Volgende WOORDLE6" ->
+                        "Next WORDLE6"
+
+                    "Delen" ->
+                        "Share"
+
+                    "STATISTIEK" ->
+                        "STATISTICS"
+
+                    "GOK VERDELING" ->
+                        "GUESS DISTRIBUTION"
+
+                    "gespeeld" ->
+                        "played"
+
+                    "Win %" ->
+                        "Win %"
+
+                    "Huidige reeks" ->
+                        "Current Streak"
+
+                    "Max reeks" ->
+                        "Max Streak"
+
+                    "Gok het " ->
+                        "Try to guess the "
+
+                    " in 6 keer." ->
+                        " within 6 guesses."
+
+                    "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ->
+                        "After every guess the colors of the squares will tell you how close you were."
+
+
+                    "De letter " ->
+                        "The letter "
+
+                    " zit op de juiste plek in het woord." ->
+                        " is in the correct place."
+
+                    "Elke dag is er een nieuwe " ->
+                        "Every day there will be a new "
+
+                    " beschikbaar!" ->
+                        " available."
+
+                    " zit in het woord maar op een andere plek." -> " is in the word, but at a different place."
+
+                    " zit helemaal niet in het woord." -> " is not in the word at any place."
+
+                    "Code is beschikbaar " -> "Code is available "
+                    "op GitHub" -> "on GitHub"
+                    "Onbekend woord" -> "Unknown word"
+                    "Copied to clipboard" -> "Copied to clipboard"
+                    "Can't share" -> "Can't share"
+
+                    other ->
+                        if String.length other == 1 then
+                            other
+
+                        else
+                            "AAA dit is nog niet vertaald: '" ++ other ++ "'"
+
+
+main : Program InitialData Model Msg
+main =
+    Browser.application
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        , onUrlRequest = onUrlRequest
+        , onUrlChange = onUrlChange
+        }
+
+
+onUrlRequest : a -> Msg
+onUrlRequest url =
+    None
+
+
+onUrlChange : a -> Msg
+onUrlChange url =
+    None
