@@ -21,5 +21,5 @@ $(npm bin)/uglifyjs app.js --compress 'pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3
 $(npm bin)/uglifyjs app-en.js --compress 'pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe' | $(npm bin)/uglifyjs --mangle --output app/js/app-en.min.js
 (echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words | jq -s; echo ";"; cat js/main.js) | $(npm bin)/uglifyjs --mangle --output app/js/main.min.js
 (echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6 | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6 | jq -s; echo ";"; cat js/main6.js) | $(npm bin)/uglifyjs --mangle --output app/js/main6.min.js
-(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6 | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6 | jq -s; echo ";"; cat js/main6-en.js) | $(npm bin)/uglifyjs --mangle --output app/js/main6-en.min.js
+(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6-en | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6-en | jq -s; echo ";"; cat js/main6-en.js) | $(npm bin)/uglifyjs --mangle --output app/js/main6-en.min.js
 rm app.js app-en.js

@@ -268,7 +268,10 @@ storageSuffix model =
             ""
 
         l ->
-            String.fromInt l
+            let 
+                suffix = String.fromInt l
+            in
+                if language == English then suffix ++ "-en" else suffix
 
 
 modelToJson : Model -> String
