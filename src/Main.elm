@@ -1998,13 +1998,3 @@ main =
         , view = view
         , subscriptions = subscriptions
         }
-
-
-onUrlRequest : a -> Msg
-onUrlRequest url =
-    None
-
-
-onUrlChange : a -> Msg
-onUrlChange url =
-    None
