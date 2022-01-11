@@ -20,6 +20,7 @@ const start_date = new Date(2022, 0, 10);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const todays_word = puzzle_words[offset % puzzle_words.length];
 var app = Elm.Main.init({
+  node: document.getElementById('app'),
   flags: {
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     localStorage: loadStorage(),

@@ -39,6 +39,7 @@ import Element.Border as Border exposing (rounded)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
+import Html exposing (Html)
 import Json.Decode as D
 import Json.Encode as E
 import Set exposing (Set)
@@ -146,8 +147,8 @@ type alias InitialData =
     }
 
 
-init : InitialData -> b -> c -> ( Model, Cmd Msg )
-init flags url key_ =
+init : InitialData -> ( Model, Cmd Msg )
+init flags =
     let
         model =
             modelFromJson
@@ -168,6 +169,253 @@ port share : String -> Cmd msg
 
 
 port makeToast : (String -> msg) -> Sub msg
+
+view : Model -> Html.Html Msg
+view model =
+    let
+        titleText =
+            case language of
+                Dutch ->
+                    titel model ++ " | Elke dag een nieuwe puzzel"
+
+                English ->
+                    "WORDLE6 | Six letter Wordle"
+    in
+    Element.layout
+            [ Background.color (pageBackground model)
+            , Font.color (textColor model)
+            , height (px model.window.height)
+            , width (px model.window.width)
+            , inFront (maybeViewHelp model)
+            , inFront (maybeShowSettings model)
+            , inFront (maybeViewEndScreen model)
+            , inFront (viewToasts model)
+            ]
+            (viewBody model)
+
+maybeViewHelp : Model -> Element Msg
+maybeViewHelp model =
+    if model.showHelp then
+        viewHelp model
+
+    else
+        Element.none
+
+exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
+exampleWords model =
+    case model.wordSize of
+        5 ->
+            ( [ Correct 'W', New 'O', New 'O', New 'R', New 'D' ]
+            , [ New 'P', Place 'U', New 'P', New 'I', New 'L' ]
+            , [ New 'T', New 'R', New 'O', Wrong 'E', New 'P' ]
+            )
+
+        _ ->
+            ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
+            , if language == English then [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] else [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+            , if language == English then [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ] else [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+            )
+
+
+viewHelp : Model -> Element Msg
+viewHelp model =
+    let
+        ( w, h ) =
+            calcWinScreenWH model.window
+
+        widthLeft =
+            w - (2 * modalPadding model)
+
+        ( first, second, third ) =
+            exampleWords model
+    in
+    el [ Background.color darkened_bg, onClick (ShowHelp False), centerX, centerY, width fill, height fill ]
+        (column
+            [ Background.color (pageBackground model)
+            , width (px w)
+            , height (px h)
+            , centerX
+            , centerY
+            , padding (modalPadding model)
+            , Border.rounded 10
+            , onClick None
+            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowHelp False), label = text "✕" }))
+            ]
+            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
+                [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
+                , el [ height (px 10) ] Element.none
+                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
+                , paragraph [] [ text "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ]
+                , el [ height (px 10) ] Element.none
+                , el [ Border.width 1, width fill ] Element.none
+                , el [ height (px 10) ] Element.none
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just first))
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just second))
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
+                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just third))
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
+                , el [ height (px 10) ] Element.none
+                , el [ Border.width 1, width fill ] Element.none
+                , el [ height (px 10) ] Element.none
+                , paragraph [] [ text "Elke dag is er een nieuwe ", el [ Font.bold ] (text (titel model)), text " beschikbaar!" ]
+                ]
+            ]
+        )
+
+
+viewBody : Model -> Element Msg
+viewBody model =
+    column [ centerX, height fill, width (fill |> maximum 600), spacing 20 ]
+        [ viewHeader model
+        , viewBoard model
+        , viewKeyboard model
+        ]
+
+viewHeader : Model -> Element Msg
+viewHeader model =
+    row
+        [ height (px 60)
+        , padding 15
+        , width fill
+        , Border.widthEach { bottom = 2, left = 0, right = 0, top = 0 }
+        ]
+        [ helpButton
+        , el [ centerY, centerX ] (text (titel model))
+        , settingsButton
+        ]
+
+helpButton : Element Msg
+helpButton =
+    button
+        [ alignLeft
+        , padding 10
+        , Border.width 2
+        , rounded 100
+        , width (px 30)
+        , height (px 30)
+        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, width (px 15) ] (text "?")))
+        ]
+        { onPress = Just (ShowHelp True), label = Element.none }
+
+
+settingsButton : Element Msg
+settingsButton =
+    button
+        [ alignLeft
+        , padding 10
+        , Border.width 2
+        , rounded 100
+        , width (px 30)
+        , height (px 30)
+        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, paddingEach { bottom = 10, left = 0, top = 0, right = 3 } ] (text "...")))
+        ]
+        { onPress = Just (ShowSettings True), label = Element.none }
+
+
+viewBoard : Model -> Element msg
+viewBoard model =
+    let
+        ( w, h ) =
+            calcBoardWH model model.window
+    in
+    column
+        [ spacing 4
+        , centerX
+        , width (px w)
+        , height (px h)
+        , Font.size (floor (toFloat h / 7.5))
+        ]
+        (List.map (viewBoardRow model) (List.take 6 (fillList model.board 6)))
+
+
+viewBoardRow : Model -> Maybe BoardWord -> Element msg
+viewBoardRow model wordrow =
+    let
+        row_ =
+            case wordrow of
+                Nothing ->
+                    []
+
+                Just x ->
+                    x
+    in
+    row [ spacing 4, width fill, height fill ] (List.map (viewBoardSquare model) (fillList row_ model.wordSize))
+
+viewBoardSquare : Model -> Maybe CharGuess -> Element msg
+viewBoardSquare model elem =
+    let
+        ( bgColor, borderColor, c ) =
+            case elem of
+                Nothing ->
+                    ( Background.color (pageBackground model), darkgrey, Element.none )
+
+                Just (New x) ->
+                    ( Background.color (pageBackground model), lightgrey, text (charToString (Char.toUpper x)) )
+
+                Just (Correct x) ->
+                    ( Background.color (correctColor model), correctColor model, text (charToString (Char.toUpper x)) )
+
+                Just (Place x) ->
+                    ( Background.color (placeColor model), placeColor model, text (charToString (Char.toUpper x)) )
+
+                Just (Wrong x) ->
+                    ( Background.color (wrongColor model), wrongColor model, text (charToString (Char.toUpper x)) )
+
+        fgColor =
+            case elem of
+                Just (New _) ->
+                    newVakjeTextColor model
+
+                _ ->
+                    vakjeTextColor model
+    in
+    el [ width fill, height fill, Border.width 3, Border.solid, Border.color borderColor, bgColor, Font.color fgColor ]
+        (el [ centerX, centerY ]
+            c
+        )
+
+
+viewKeyboard : Model -> Element Msg
+viewKeyboard model =
+    let
+        ( first, second, third ) =
+            model.keyboard
+    in
+    column [ width fill, height (fill |> maximum 260), alignBottom, spacing 10, paddingXY 5 5 ]
+        [ row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
+        , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (viewKey model))
+        , row [ width fill, height fill, spacing 5, centerX ] (el [ width (fill |> maximum 50) ] 
+            Element.none :: (third |> List.map (viewKey model)) ++ [ el [ width (fill |> maximum 20) ] Element.none ])
+        ]
+
+viewKey : Model -> CharGuess -> Element Msg
+viewKey model letter =
+    let
+        ( bgColor, c ) =
+            case letter of
+                New x ->
+                    ( keyColor model, x )
+
+                Correct x ->
+                    ( correctColor model, x )
+
+                Place x ->
+                    ( placeColor model, x )
+
+                Wrong x ->
+                    ( wrongColor model, x )
+
+        ( buttontext, bwidth ) =
+            case c of
+                '↵' ->
+                    ( el [ Font.size 14 ] (text "ENTER"), 85 )
+
+                x ->
+                    ( text (charToString x), 55 )
+    in
+    button [ Background.color bgColor, Element.mouseDown [ Background.color (darken bgColor) ], width (fill |> maximum bwidth), height (keyDeviceHeight model), rounded 10, Font.size 18 ]
+        { onPress = Just (TouchKey c), label = el [ centerX, centerY ] buttontext }
 
 
 boardWordToJsonString : Maybe BoardWord -> E.Value
@@ -1068,44 +1316,6 @@ titel model =
         l ->
             "WOORDLE" ++ String.fromInt l
 
-
-view : Model -> Document Msg
-view model =
-    let
-        titleText =
-            case language of
-                Dutch ->
-                    titel model ++ " | Elke dag een nieuwe puzzel"
-
-                English ->
-                    "WORDLE6 | Six letter Wordle"
-    in
-    { title = titleText
-    , body =
-        [ Element.layout
-            [ Background.color (pageBackground model)
-            , Font.color (textColor model)
-            , height (px model.window.height)
-            , width (px model.window.width)
-            , inFront (maybeShowSettings model)
-            , inFront (maybeShowHelp model)
-            , inFront (maybeViewEndScreen model)
-            , inFront (viewToasts model)
-            ]
-            (body model)
-        ]
-    }
-
-
-maybeShowHelp : Model -> Element Msg
-maybeShowHelp model =
-    if model.showHelp then
-        viewShowHelp model
-
-    else
-        Element.none
-
-
 modalPadding : Model -> Int
 modalPadding model =
     case (classifyDevice model.window).class of
@@ -1121,67 +1331,6 @@ rowHeight model width =
     round <| (toFloat width - 4 * toFloat (model.wordSize - 1)) / toFloat model.wordSize
 
 
-exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
-exampleWords model =
-    case model.wordSize of
-        5 ->
-            ( [ Correct 'W', New 'O', New 'O', New 'R', New 'D' ]
-            , [ New 'P', Place 'U', New 'P', New 'I', New 'L' ]
-            , [ New 'T', New 'R', New 'O', Wrong 'E', New 'P' ]
-            )
-
-        _ ->
-            ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
-            , if language == English then [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] else [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
-            , if language == English then [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ] else [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
-            )
-
-
-viewShowHelp : Model -> Element Msg
-viewShowHelp model =
-    let
-        ( w, h ) =
-            calcWinScreenWH model.window
-
-        widthLeft =
-            w - (2 * modalPadding model)
-
-        ( first, second, third ) =
-            exampleWords model
-    in
-    el [ Background.color darkened_bg, onClick (ShowHelp False), centerX, centerY, width fill, height fill ]
-        (column
-            [ Background.color (pageBackground model)
-            , width (px w)
-            , height (px h)
-            , centerX
-            , centerY
-            , padding (modalPadding model)
-            , Border.rounded 10
-            , onClick None
-            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowHelp False), label = text "✕" }))
-            ]
-            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
-                [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
-                , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
-                , paragraph [] [ text "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ]
-                , el [ height (px 10) ] Element.none
-                , el [ Border.width 1, width fill ] Element.none
-                , el [ height (px 10) ] Element.none
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just first))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just second))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (vakjesRow model (Just third))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
-                , el [ height (px 10) ] Element.none
-                , el [ Border.width 1, width fill ] Element.none
-                , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Elke dag is er een nieuwe ", el [ Font.bold ] (text (titel model)), text " beschikbaar!" ]
-                ]
-            ]
-        )
 
 
 maybeShowSettings : Model -> Element Msg
@@ -1287,15 +1436,6 @@ viewToasts model =
                     content
             )
             model.toasts
-
-
-body : Model -> Element Msg
-body model =
-    column [ centerX, height fill, width (fill |> maximum 600), spacing 20 ]
-        [ woordleHeader model
-        , vakjes model
-        , keyboard model
-        ]
 
 
 maybeViewEndScreen : Model -> Element Msg
@@ -1493,48 +1633,6 @@ viewStatitics model =
         ]
 
 
-helpButton : Element Msg
-helpButton =
-    button
-        [ alignLeft
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, width (px 15) ] (text "?")))
-        ]
-        { onPress = Just (ShowHelp True), label = Element.none }
-
-
-settingsButton : Element Msg
-settingsButton =
-    button
-        [ alignLeft
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, paddingEach { bottom = 10, left = 0, top = 0, right = 3 } ] (text "...")))
-        ]
-        { onPress = Just (ShowSettings True), label = Element.none }
-
-
-woordleHeader : Model -> Element Msg
-woordleHeader model =
-    row
-        [ height (px 60)
-        , padding 15
-        , width fill
-        , Border.widthEach { bottom = 2, left = 0, right = 0, top = 0 }
-        ]
-        [ helpButton
-        , el [ centerY, centerX ] (text (titel model))
-        , settingsButton
-        ]
-
-
 calcBoardWH : Model -> { a | width : Int, height : Int } -> ( Int, Int )
 calcBoardWH model { width, height } =
     let
@@ -1566,36 +1664,6 @@ calcBoardWH model { width, height } =
     ( floor (h * toFloat model.wordSize / 6), floor h )
 
 
-vakjes : Model -> Element msg
-vakjes model =
-    let
-        ( w, h ) =
-            calcBoardWH model model.window
-    in
-    column
-        [ spacing 4
-        , centerX
-        , width (px w)
-        , height (px h)
-        , Font.size (floor (toFloat h / 7.5))
-        ]
-        (List.map (vakjesRow model) (List.take 6 (fillList model.board 6)))
-
-
-vakjesRow : Model -> Maybe BoardWord -> Element msg
-vakjesRow model rij =
-    let
-        rij_ =
-            case rij of
-                Nothing ->
-                    []
-
-                Just x ->
-                    x
-    in
-    row [ spacing 4, width fill, height fill ] (List.map (vakje model) (fillList rij_ model.wordSize))
-
-
 fillList : List a -> Int -> List (Maybe a)
 fillList list to =
     case ( list, to ) of
@@ -1612,53 +1680,6 @@ fillList list to =
             Just x :: fillList xs (n - 1)
 
 
-vakje : Model -> Maybe CharGuess -> Element msg
-vakje model elem =
-    let
-        ( bgColor, borderColor, c ) =
-            case elem of
-                Nothing ->
-                    ( Background.color (pageBackground model), darkgrey, Element.none )
-
-                Just (New x) ->
-                    ( Background.color (pageBackground model), lightgrey, text (charToString (Char.toUpper x)) )
-
-                Just (Correct x) ->
-                    ( Background.color (correctColor model), correctColor model, text (charToString (Char.toUpper x)) )
-
-                Just (Place x) ->
-                    ( Background.color (placeColor model), placeColor model, text (charToString (Char.toUpper x)) )
-
-                Just (Wrong x) ->
-                    ( Background.color (wrongColor model), wrongColor model, text (charToString (Char.toUpper x)) )
-
-        fgColor =
-            case elem of
-                Just (New _) ->
-                    newVakjeTextColor model
-
-                _ ->
-                    vakjeTextColor model
-    in
-    el [ width fill, height fill, Border.width 3, Border.solid, Border.color borderColor, bgColor, Font.color fgColor ]
-        (el [ centerX, centerY ]
-            c
-        )
-
-
-keyboard : Model -> Element Msg
-keyboard model =
-    let
-        ( first, second, third ) =
-            model.keyboard
-    in
-    column [ width fill, height (fill |> maximum 260), alignBottom, spacing 10, paddingXY 5 5 ]
-        [ row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (key model))
-        , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (key model))
-        , row [ width fill, height fill, spacing 5, centerX ] (el [ width (fill |> maximum 50) ] Element.none :: (third |> List.map (key model)) ++ [ el [ width (fill |> maximum 20) ] Element.none ])
-        ]
-
-
 charToString : Char -> String
 charToString =
     List.singleton >> String.fromList
@@ -1671,35 +1692,6 @@ keyDeviceHeight model =
 
     else
         px 65
-
-
-key : Model -> CharGuess -> Element Msg
-key model letter =
-    let
-        ( bgColor, c ) =
-            case letter of
-                New x ->
-                    ( keyColor model, x )
-
-                Correct x ->
-                    ( correctColor model, x )
-
-                Place x ->
-                    ( placeColor model, x )
-
-                Wrong x ->
-                    ( wrongColor model, x )
-
-        ( buttontext, bwidth ) =
-            case c of
-                '↵' ->
-                    ( el [ Font.size 14 ] (text "ENTER"), 85 )
-
-                x ->
-                    ( text (charToString x), 55 )
-    in
-    button [ Background.color bgColor, Element.mouseDown [ Background.color (darken bgColor) ], width (fill |> maximum bwidth), height (keyDeviceHeight model), rounded 10, Font.size 18 ]
-        { onPress = Just (TouchKey c), label = el [ centerX, centerY ] buttontext }
 
 
 white : Element.Color
@@ -2000,13 +1992,11 @@ text str =
 
 main : Program InitialData Model Msg
 main =
-    Browser.application
+    Browser.element
         { init = init
         , update = update
         , view = view
         , subscriptions = subscriptions
-        , onUrlRequest = onUrlRequest
-        , onUrlChange = onUrlChange
         }
 
 
