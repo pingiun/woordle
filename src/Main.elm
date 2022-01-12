@@ -1053,7 +1053,7 @@ updateStatistics board won oldstats =
                     { oldGuesses | g5 = oldGuesses.g5 + 1 }
 
                 ( 6, True ) ->
-                    { oldGuesses | g5 = oldGuesses.g6 + 1 }
+                    { oldGuesses | g6 = oldGuesses.g6 + 1 }
 
                 _ ->
                     -- Invalid
