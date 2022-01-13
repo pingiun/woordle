@@ -2,5 +2,5 @@
 
 # Disable push if latest app version wasn't exported to app folder
 
-./export.sh
+make export
 exec git diff --exit-code -- app 
