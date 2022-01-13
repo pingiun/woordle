@@ -1987,7 +1987,7 @@ text str =
                             other
 
                         else
-                            "AAA dit is nog niet vertaald: '" ++ other ++ "'"
+                            other
 
 
 main : Program InitialData Model Msg
