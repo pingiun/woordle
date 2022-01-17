@@ -1,3 +1,306 @@
+LICENCIA PÚBLICA DE LA UNIÓN EUROPEA v. 1.2
+                      EUPL © Unión Europea 2007, 2016
+
+Esta Licencia Pública de la Unión Europea (la 'EUPL') se aplica a la Obra (como
+definido a continuación) que se proporciona bajo los términos de esta Licencia. Cualquier uso de
+el Trabajo, salvo lo autorizado en virtud de esta Licencia, está prohibido (en la medida en que
+en la medida en que dicho uso esté cubierto por un derecho del titular de los derechos de autor de la Obra).
+
+El Trabajo se proporciona bajo los términos de esta Licencia cuando el Licenciante (como
+definido a continuación) ha colocado el siguiente aviso inmediatamente después de la
+aviso de copyright de la Obra:
+
+        Licenciado bajo la EUPL
+
+o ha manifestado por cualquier otro medio su voluntad de licenciar bajo la EUPL.
+
+1. Definiciones
+
+En esta Licencia, los siguientes términos tienen el siguiente significado:
+
+- 'La Licencia': esta Licencia.
+
+- 'La Obra Original': la obra o el software distribuido o comunicado por el
+  Licenciante bajo esta Licencia, disponible como código fuente y también como ejecutable
+  Código según sea el caso.
+
+- 'Obras Derivadas': las obras o software que podría crear el
+  Licenciatario, basado en el Trabajo Original o modificaciones del mismo. Esta
+  La licencia no define el alcance de la modificación o la dependencia de la
+  Obra Original requerida para clasificar una obra como Obra Derivada;
+  este alcance está determinado por la ley de derechos de autor aplicable en el país
+  mencionado en el artículo 15.
+
+- 'La Obra': la Obra Original o sus Obras Derivadas.
+
+- 'El Código Fuente': la forma legible por humanos del Trabajo que es la más
+  conveniente para que la gente estudie y modifique.
+
+- 'El Código Ejecutable': cualquier código que generalmente ha sido compilado y que
+  está destinado a ser interpretado por una computadora como un programa.
+
+- “El Licenciante”: la persona física o jurídica que distribuye o comunica
+  la Obra bajo la Licencia.
+
+- 'Contribuyente(s)': cualquier persona física o jurídica que modifique la Obra bajo
+  la Licencia, o contribuye de otro modo a la creación de una Obra Derivada.
+
+- 'El Licenciatario' o 'Usted': cualquier persona física o jurídica que haga cualquier uso de
+  la Obra bajo los términos de la Licencia.
+
+- 'Distribución' o 'Comunicación': cualquier acto de vender, dar, prestar,
+  alquilar, distribuir, comunicar, transmitir o hacer de otro modo
+  disponibles, en línea o fuera de línea, copias de la Obra o proporcionar acceso a su
+  funcionalidades esenciales a disposición de cualquier otra persona física o jurídica
+  persona.
+
+2. Alcance de los derechos otorgados por la Licencia
+
+Por la presente, el Licenciante le otorga una licencia mundial, libre de regalías, no exclusiva,
+licencia sublicenciable para hacer lo siguiente, durante la duración de los derechos de autor
+conferidos a la Obra Original:
+
+- utilizar la Obra en cualquier circunstancia y para todos los usos,
+- reproducir la Obra,
+- modificar la Obra y hacer Obras Derivadas basadas en la Obra,
+- comunicar al público, incluido el derecho a poner a disposición o mostrar
+  la Obra o copias de la misma al público y ejecutarla públicamente, según el caso
+  puede ser, la Obra,
+- distribuir la Obra o copias de la misma,
+- prestar y alquilar la Obra o copias de la misma,
+- derechos de sublicencia sobre la Obra o copias de la misma.
+
+Estos derechos pueden ejercerse en cualquier medio, soporte y formato, ya sea ahora
+conocidos o inventados posteriormente, en la medida en que la ley aplicable lo permita.
+
+En los países donde se aplican los derechos morales, el Licenciante renuncia a su derecho a
+ejercer su derecho moral en la medida permitida por la ley para hacer
+en vigor la licencia de los derechos patrimoniales aquí arriba enumerados.
+
+El licenciante otorga al licenciatario derechos de uso no exclusivos y libres de regalías
+a cualquier patente en poder del Licenciante, en la medida necesaria para hacer uso de
+los derechos concedidos sobre la Obra en virtud de esta Licencia.
+
+3. Comunicación del Código Fuente
+
+El Licenciante puede proporcionar el Trabajo ya sea en su forma de Código fuente, o como
+Código ejecutable. Si la Obra se proporciona como Código Ejecutable, el Licenciante
+proporciona además una copia legible por máquina del código fuente de la obra
+junto con cada copia de la Obra que el Licenciante distribuya o indique,
+en un aviso que sigue al aviso de derechos de autor adjunto a la Obra, un repositorio
+donde el código fuente es fácil y libremente accesible durante el tiempo que
+El Licenciante continúa distribuyendo o comunicando la Obra.
+
+4. Limitaciones de los derechos de autor
+
+Nada en esta Licencia pretende privar al Licenciatario de los beneficios
+de cualquier excepción o limitación a los derechos exclusivos de los titulares de los derechos
+en la Obra, del agotamiento de esos derechos o de otros aplicables
+limitaciones al mismo.
+
+5. Obligaciones del Licenciatario
+
+Vertaaltypen
+Tekstvertaling
+Brontekst
+5.000 / 5.000
+Vertaalresultaten
+La concesión de los derechos antes mencionados está sujeta a algunas restricciones y
+obligaciones impuestas al Licenciatario. Esas obligaciones son las siguientes:
+
+Derecho de atribución: El Licenciatario deberá mantener intactos todos los derechos de autor, patente o
+avisos de marcas registradas y todos los avisos que se refieren a la Licencia y al
+renuncia de garantías. El Licenciatario debe incluir una copia de dichos avisos y
+una copia de la Licencia con cada copia de la Obra que distribuya o
+comunica. El Licenciatario debe hacer que cualquier Trabajo Derivado lleve un lugar destacado
+avisos que indiquen que la Obra ha sido modificada y la fecha de modificación.
+
+Cláusula copyleft: Si el Licenciatario distribuye o comunica copias del
+Obras Originales u Obras Derivadas, esta Distribución o Comunicación será
+hecho bajo los términos de esta Licencia o de una versión posterior de esta Licencia
+a menos que la Obra original se distribuya expresamente solo bajo esta versión de
+la Licencia, por ejemplo, comunicando "EUPL v. 1.2 únicamente". El Licenciatario
+(convirtiéndose en Licenciante) no puede ofrecer ni imponer términos o condiciones adicionales
+sobre la Obra o Trabajo Derivado que alteren o restrinjan los términos de la
+Licencia.
+
+Cláusula de compatibilidad: Si el Licenciatario Distribuye o Comunica Derivado
+Obras o copias de las mismas basadas tanto en la Obra como en otra obra con licencia
+bajo una Licencia Compatible, esta Distribución o Comunicación puede hacerse
+bajo los términos de esta Licencia Compatible. Por el bien de esta cláusula,
+“Licencia compatible” se refiere a las licencias enumeradas en el apéndice adjunto a
+esta Licencia. Si las obligaciones del licenciatario en virtud de la licencia compatible
+conflicto con sus obligaciones bajo esta Licencia, las obligaciones del
+Prevalecerá la licencia compatible.
+
+Provisión de Código Fuente: Al distribuir o comunicar copias del
+Trabajo, el Licenciatario proporcionará una copia legible por máquina del Código Fuente o
+indicar un repositorio donde esta Fuente estará disponible fácil y gratuitamente
+mientras el Licenciatario continúe distribuyendo o comunicando la Obra.
+
+Protección Legal: Esta Licencia no otorga permiso para usar el comercio
+nombres, marcas registradas, marcas de servicio o nombres del Licenciante, excepto cuando se requiera
+para un uso razonable y habitual en la descripción del origen de la Obra y
+reproducir el contenido del aviso de derechos de autor.
+
+6. Cadena de autoría
+
+El Licenciante original garantiza que los derechos de autor de la Obra original otorgada
+a continuación es propiedad de él/ella o tiene licencia para él/ella y que él/ella tiene la
+poder y autoridad para otorgar la Licencia.
+
+Cada Colaborador garantiza que los derechos de autor de las modificaciones que él/ella
+trae a la Obra son de su propiedad o están licenciados a él/ella y que él/ella
+tiene el poder y la autoridad para otorgar la Licencia.
+
+Cada vez que acepta la Licencia, el Licenciante original y los subsiguientes
+Los Colaboradores le otorgan a Usted una licencia sobre sus aportes a la Obra, bajo el
+términos de esta Licencia.
+
+7. Renuncia de garantía
+
+La Obra es una obra en progreso, que es continuamente mejorada por numerosos
+Colaboradores. No es una obra terminada y, por lo tanto, puede contener defectos o
+‘bugs’ inherentes a este tipo de desarrollo.
+
+Por la razón anterior, el Trabajo se proporciona bajo la Licencia "tal cual".
+base y sin garantías de ningún tipo con respecto a la Obra, incluyendo
+sin limitación comerciabilidad, idoneidad para un propósito particular, ausencia
+de defectos o errores, exactitud, no infracción de la propiedad intelectual
+derechos distintos de los derechos de autor como se establece en el Artículo 6 de esta Licencia.
+
+Esta renuncia de garantía es una parte esencial de la Licencia y una
+condición para la concesión de cualquier derecho sobre la Obra.
+
+8. Descargo de responsabilidad
+
+Excepto en los casos de dolo o daños directamente causados ​​a la naturaleza
+personas, el Licenciante en ningún caso será responsable de ningún daño directo o indirecto,
+daños materiales o morales, de cualquier tipo, derivados de la Licencia o de la
+uso del Trabajo, incluidos, entre otros, daños por pérdida de buena voluntad,
+interrupción del trabajo, fallo o mal funcionamiento informático, pérdida de datos o cualquier
+daño, incluso si el Licenciante ha sido advertido de la posibilidad de tal
+daño. Sin embargo, el Licenciante será responsable bajo la responsabilidad legal del producto
+leyes en la medida en que dichas leyes se apliquen a la Obra.
+
+9. Acuerdos adicionales
+
+Mientras distribuye el Trabajo, puede optar por concluir un contrato adicional
+acuerdo, definiendo obligaciones o servicios consistentes con esta Licencia.
+Sin embargo, si acepta obligaciones, solo puede actuar en su propio nombre y en
+bajo su exclusiva responsabilidad, no en nombre del Licenciante original ni de ningún otro
+Contribuyente, y solo si acepta indemnizar, defender y mantener cada
+Contribuyente de cualquier responsabilidad incurrida por, o reclamos presentados contra
+dicho Colaborador por el hecho de que Usted ha aceptado cualquier garantía o
+responsabilidad.
+
+Vertaaltypen
+Tekstvertaling
+Brontekst
+4.449 / 5.000
+Vertaalresultaten
+10. Aceptación de la Licencia
+
+Las disposiciones de esta Licencia se pueden aceptar haciendo clic en un icono 'I
+acepto' colocado debajo de la parte inferior de una ventana que muestra el texto de esta Licencia
+o afirmando el consentimiento de cualquier otra forma similar, de acuerdo con las reglas
+de la ley aplicable. Al hacer clic en ese icono indica su clara e irrevocable
+aceptación de esta Licencia y todos sus términos y condiciones.
+
+Del mismo modo, acepta irrevocablemente esta Licencia y todos sus términos y
+condiciones mediante el ejercicio de los derechos que le otorga el artículo 2 de este
+Licencia, como el uso de la Obra, la creación por su parte de una Obra derivada
+o la Distribución o Comunicación por parte de Usted del Trabajo o copias del mismo.
+
+11. Información al público
+
+En caso de cualquier Distribución o Comunicación de la Obra por medio de
+comunicación electrónica por parte de Usted (por ejemplo, al ofrecer descargar el Trabajo
+desde una ubicación remota) el canal o medio de distribución (por ejemplo, un
+sitio web) debe al menos proporcionar al público la información solicitada por el
+legislación aplicable en relación con el Licenciante, la Licencia y la forma en que puede ser
+accesible, concluido, almacenado y reproducido por el Licenciatario.
+
+12. Terminación de la Licencia
+
+La Licencia y los derechos otorgados en virtud del presente terminarán automáticamente al
+cualquier incumplimiento por parte del Licenciatario de los términos de la Licencia.
+
+Tal rescisión no rescindirá las licencias de ninguna persona que haya
+recibido la Obra del Licenciatario en virtud de la Licencia, siempre que dichas personas
+permanecer en total conformidad con la Licencia.
+
+13. Varios
+
+Sin perjuicio del artículo 9 anterior, la Licencia representa la totalidad
+acuerdo entre las Partes en cuanto a la Obra.
+
+Si alguna disposición de la Licencia no es válida o no se puede hacer cumplir según las
+ley, esto no afectará la validez o aplicabilidad de la Licencia como un
+entero. Dicha disposición se interpretará o reformará en lo necesario para que sea
+válido y exigible.
+
+La Comisión Europea podrá publicar otras versiones lingüísticas o nuevas versiones
+de esta Licencia o versiones actualizadas del Apéndice, hasta ahora esto es requerido
+y razonable, sin menoscabo del alcance de los derechos otorgados por la
+Licencia. Las nuevas versiones de la Licencia se publicarán con una versión única
+número.
+
+Todas las versiones lingüísticas de esta Licencia, aprobadas por la Comisión Europea,
+tienen idéntico valor. Las partes pueden aprovechar la versión lingüística de
+su elección
+
+14. Jurisdicción
+
+Sin perjuicio del acuerdo específico entre las partes,
+
+- cualquier litigio resultante de la interpretación de esta Licencia, que surja
+  entre las instituciones, órganos u organismos de la Unión Europea, como
+  El Licenciante, y cualquier Licenciatario, estarán sujetos a la jurisdicción del Tribunal
+  de Justicia de la Unión Europea, tal como establece el artículo 272 del Tratado
+  sobre el Funcionamiento de la Unión Europea,
+
+- cualquier litigio que surja entre otras partes y que resulte de la
+  interpretación de esta Licencia, estará sujeta a la exclusiva
+  jurisdicción del tribunal competente donde el Licenciante reside o lleva a cabo
+  su negocio principal.
+
+15. Ley aplicable
+
+Sin perjuicio del acuerdo específico entre las partes,
+
+- esta Licencia se regirá por la ley del Estado miembro de la Unión Europea
+  donde el Licenciante tiene su sede, reside o tiene su domicilio social,
+
+- esta licencia se regirá por la ley belga si el Licenciante no tiene sede,
+  residencia o domicilio social dentro de un Estado miembro de la Unión Europea.
+
+Apéndice
+
+Las "licencias compatibles" según el artículo 5 de la EUPL son:
+
+- Licencia Pública General GNU (GPL) v. 2, v. 3
+- Licencia pública general GNU Affero (AGPL) v. 3
+- Licencia de software abierto (OSL) v. 2.1, v. 3.0
+- Licencia pública de Eclipse (EPL) v. 1.0
+- CeCILL v. 2.0, v. 2.1
+- Licencia pública de Mozilla (MPL) v. 2
+- Licencia pública general reducida de GNU (LGPL) v. 2.1, v. 3
+- Creative Commons Attribution-ShareAlike v. 3.0 Unported (CC BY-SA 3.0) para
+  funciona aparte del software
+- Licencia Pública de la Unión Europea (EUPL) v. 1.1, v. 1.2
+- Licencia libre y de código abierto de Québec — Reciprocidad (LiLiQ-R) o Fuerte
+  Reciprocidad (LiLiQ-R+).
+
+La Comisión Europea puede actualizar este Apéndice a versiones posteriores del
+licencias anteriores sin producir una nueva versión de la EUPL, siempre y cuando
+otorgar los derechos otorgados en el Artículo 2 de esta Licencia y proteger el
+Código fuente cubierto de apropiación exclusiva.
+
+Todos los demás cambios o adiciones a este Apéndice requieren la producción de un
+nueva versión EUPL. 
+
+
                       EUROPEAN UNION PUBLIC LICENCE v. 1.2
                       EUPL © the European Union 2007, 2016
 
