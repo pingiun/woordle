@@ -1082,7 +1082,7 @@ processNewWord model =
             updateKeyboard (lastWord newBoard) model.keyboard
 
         hasEnded =
-            List.length (lastWord model.board) == model.wordSize && List.length model.board == 6
+            List.length (lastWord model.board) == model.wordSize && boardLength newBoard == 6
 
         lastWordAllGreen =
             lastWord newBoard |> allGreen
