@@ -19,7 +19,7 @@ Deze licentie is vergelijkbaar met de AGPL, dus als je Woordle online zet met aa
 
 Ik zou het wel fijn vinden als je in je eigen versie een andere naam dan "Woordle" of "WOORDLE" gebruikt.
 
-# PALABRACITAS.ES
+# PALABRASITAS.ES
 
 Het is WOORDLE maar dan aangepast naar de Spaanse taal.
 
