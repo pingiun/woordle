@@ -15,4 +15,4 @@ popd
 trap "kill $python_pid" EXIT
 
 $MAKE export OPTIMIZE=""
-fswatch --one-per-batch src/Main.elm | xargs -n1 -I{} $MAKE export OPTIMIZE=""
+fswatch --one-per-batch src/Main.elm js/*.js app/**/*.html | xargs -n1 -I{} $MAKE export OPTIMIZE=""
