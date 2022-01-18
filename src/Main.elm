@@ -170,6 +170,7 @@ port share : String -> Cmd msg
 
 port makeToast : (String -> msg) -> Sub msg
 
+
 view : Model -> Html.Html Msg
 view model =
     let
@@ -182,16 +183,17 @@ view model =
                     "WORDLE6 | Six letter Wordle"
     in
     Element.layout
-            [ Background.color (pageBackground model)
-            , Font.color (textColor model)
-            , height (px model.window.height)
-            , width (px model.window.width)
-            , inFront (maybeViewHelp model)
-            , inFront (maybeShowSettings model)
-            , inFront (maybeViewEndScreen model)
-            , inFront (viewToasts model)
-            ]
-            (viewBody model)
+        [ Background.color (pageBackground model)
+        , Font.color (textColor model)
+        , height (px model.window.height)
+        , width (px model.window.width)
+        , inFront (maybeViewHelp model)
+        , inFront (maybeShowSettings model)
+        , inFront (maybeViewEndScreen model)
+        , inFront (viewToasts model)
+        ]
+        (viewBody model)
+
 
 maybeViewHelp : Model -> Element Msg
 maybeViewHelp model =
@@ -200,6 +202,7 @@ maybeViewHelp model =
 
     else
         Element.none
+
 
 exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
 exampleWords model =
@@ -212,8 +215,18 @@ exampleWords model =
 
         _ ->
             ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
-            , if language == English then [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] else [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
-            , if language == English then [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ] else [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+            , case language of
+                English ->
+                    [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ]
+
+                Dutch ->
+                    [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+            , case language of
+                English ->
+                    [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ]
+
+                Dutch ->
+                    [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
             )
 
 
@@ -272,6 +285,7 @@ viewBody model =
         , viewKeyboard model
         ]
 
+
 viewHeader : Model -> Element Msg
 viewHeader model =
     row
@@ -284,6 +298,7 @@ viewHeader model =
         , el [ centerY, centerX ] (text (titel model))
         , settingsButton
         ]
+
 
 helpButton : Element Msg
 helpButton =
@@ -342,6 +357,7 @@ viewBoardRow model wordrow =
     in
     row [ spacing 4, width fill, height fill ] (List.map (viewBoardSquare model) (fillList row_ model.wordSize))
 
+
 viewBoardSquare : Model -> Maybe CharGuess -> Element msg
 viewBoardSquare model elem =
     let
@@ -385,9 +401,14 @@ viewKeyboard model =
     column [ width fill, height (fill |> maximum 260), alignBottom, spacing 10, paddingXY 5 5 ]
         [ row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (viewKey model))
-        , row [ width fill, height fill, spacing 5, centerX ] (el [ width (fill |> maximum 50) ] 
-            Element.none :: (third |> List.map (viewKey model)) ++ [ el [ width (fill |> maximum 20) ] Element.none ])
+        , row [ width fill, height fill, spacing 5, centerX ]
+            (el [ width (fill |> maximum 50) ]
+                Element.none
+                :: (third |> List.map (viewKey model))
+                ++ [ el [ width (fill |> maximum 20) ] Element.none ]
+            )
         ]
+
 
 viewKey : Model -> CharGuess -> Element Msg
 viewKey model letter =
@@ -516,10 +537,16 @@ storageSuffix model =
             ""
 
         l ->
-            let 
-                suffix = String.fromInt l
+            let
+                suffix =
+                    String.fromInt l
             in
-                if language == English then suffix ++ "-en" else suffix
+            case language of
+                English ->
+                    suffix ++ "-en"
+
+                Dutch ->
+                    suffix
 
 
 modelToJson : Model -> String
@@ -806,7 +833,12 @@ createShare model =
                     ( "Woordle ", 202 )
 
                 l ->
-                    if language == English then ("Wordle6 ", 1) else ( "Woordle" ++ String.fromInt l ++ " ", 1 )
+                    case language of
+                        English ->
+                            ( "Wordle6 ", 1 )
+
+                        Dutch ->
+                            ( "Woordle" ++ String.fromInt l ++ " ", 1 )
     in
     woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
 
@@ -1316,6 +1348,7 @@ titel model =
         l ->
             "WOORDLE" ++ String.fromInt l
 
+
 modalPadding : Model -> Int
 modalPadding model =
     case (classifyDevice model.window).class of
@@ -1329,8 +1362,6 @@ modalPadding model =
 rowHeight : Model -> Int -> Int
 rowHeight model width =
     round <| (toFloat width - 4 * toFloat (model.wordSize - 1)) / toFloat model.wordSize
-
-
 
 
 maybeShowSettings : Model -> Element Msg
@@ -1369,22 +1400,24 @@ viewShowSettings model =
             calcWinScreenWH model.window
 
         linkToOther =
-            if language == English then
-                Element.none
+            case language of
+                English ->
+                    Element.none
 
-            else if model.wordSize == 5 then
-                paragraph [ Font.size 16 ]
-                    [ text "Ook al "
-                    , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                    , text " geprobeerd?"
-                    ]
+                Dutch ->
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                            , text " geprobeerd?"
+                            ]
 
-            else
-                paragraph [ Font.size 16 ]
-                    [ text "Ook al "
-                    , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
-                    , text " geprobeerd?"
-                    ]
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                            , text " geprobeerd?"
+                            ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1410,7 +1443,12 @@ viewShowSettings model =
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
-                , if language == English then paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ] else Element.none
+                , case language of
+                    English ->
+                        paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ]
+
+                    Dutch ->
+                        Element.none
                 , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
                 ]
@@ -1521,26 +1559,28 @@ viewEndScreen model =
             calcWinScreenWH model.window
 
         linkToOther =
-            if language == English then
-                paragraph [ Font.size 16 ]
-                    [ Element.text "Already done the regular "
-                    , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                    , Element.text " today?"
-                    ]
+            case language of
+                English ->
+                    paragraph [ Font.size 16 ]
+                        [ Element.text "Already done the regular "
+                        , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                        , Element.text " today?"
+                        ]
 
-            else if model.wordSize == 5 then
-                paragraph [ Font.size 16 ]
-                    [ text "Ook al "
-                    , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                    , text " geprobeerd?"
-                    ]
+                Dutch ->
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                            , text " geprobeerd?"
+                            ]
 
-            else
-                paragraph [ Font.size 16 ]
-                    [ text "Ook al "
-                    , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
-                    , text " geprobeerd?"
-                    ]
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                            , text " geprobeerd?"
+                            ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1564,15 +1604,16 @@ viewEndScreen model =
                     ]
                 , el [ height (px 40) ] Element.none
                 , viewStatitics model
-                , if language == Dutch then
-                    paragraph [ Font.size 16 ]
-                        [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
-                        , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                        , text " (in het Engels)!"
-                        ]
+                , case language of
+                    Dutch ->
+                        paragraph [ Font.size 16 ]
+                            [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
+                            , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                            , text " (in het Engels)!"
+                            ]
 
-                  else
-                    Element.none
+                    English ->
+                        Element.none
                 , linkToOther
                 ]
             ]
@@ -1921,7 +1962,8 @@ text str =
                     "Je hebt gewonnen!!" ->
                         "You won!!"
 
-                    "Je hebt verloren..." -> "You lost..."
+                    "Je hebt verloren..." ->
+                        "You lost..."
 
                     "Het woord was: " ->
                         "The word was"
@@ -1959,7 +2001,6 @@ text str =
                     "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ->
                         "After every guess the colors of the squares will tell you how close you were."
 
-
                     "De letter " ->
                         "The letter "
 
@@ -1972,15 +2013,26 @@ text str =
                     " beschikbaar!" ->
                         " available."
 
-                    " zit in het woord maar op een andere plek." -> " is in the word, but at a different place."
+                    " zit in het woord maar op een andere plek." ->
+                        " is in the word, but at a different place."
 
-                    " zit helemaal niet in het woord." -> " is not in the word at any place."
+                    " zit helemaal niet in het woord." ->
+                        " is not in the word at any place."
 
-                    "Code is beschikbaar " -> "Code is available "
-                    "op GitHub" -> "on GitHub"
-                    "Onbekend woord" -> "Unknown word"
-                    "Copied to clipboard" -> "Copied to clipboard"
-                    "Can't share" -> "Can't share"
+                    "Code is beschikbaar " ->
+                        "Code is available "
+
+                    "op GitHub" ->
+                        "on GitHub"
+
+                    "Onbekend woord" ->
+                        "Unknown word"
+
+                    "Copied to clipboard" ->
+                        "Copied to clipboard"
+
+                    "Can't share" ->
+                        "Can't share"
 
                     other ->
                         if String.length other == 1 then
