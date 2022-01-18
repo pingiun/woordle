@@ -1,7 +1,7 @@
 
 function loadStorage() {
-  const gameState = JSON.parse(localStorage.getItem("gameState"));
-  const statistics = JSON.parse(localStorage.getItem("statistics"));
+  const gameState = JSON.parse(localStorage.getItem("gameState-es"));
+  const statistics = JSON.parse(localStorage.getItem("statistics-es"));
   const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
   return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme }

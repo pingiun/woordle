@@ -545,6 +545,9 @@ storageSuffix model =
                 English ->
                     suffix ++ "-en"
 
+                Spanish ->
+                    suffix ++ "-es"
+
                 Dutch ->
                     suffix
 
@@ -1904,17 +1907,12 @@ darken c =
 type Language
     = English
     | Dutch
+    | Spanish
 
 
 language : Language
 language =
-    {- The line below is replaced with in export.html such that Dutch is commented and the end of the comment ends up below -}
-    {- English -}
-    Dutch
-
-
-
--- -}
+    Spanish
 
 
 text : String -> Element msg
@@ -2035,10 +2033,12 @@ text str =
                         "Can't share"
 
                     other ->
+                        -- Single letters can be kept untranslated
                         if String.length other == 1 then
                             other
 
                         else
+                            -- Fallback to the original string
                             other
 
 
