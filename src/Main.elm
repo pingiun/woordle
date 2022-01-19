@@ -2031,6 +2031,116 @@ text str =
 
                     "Can't share" ->
                         "Can't share"
+        Spanish ->
+            Element.text <|
+                case str of
+                    "ENTER" ->
+                        "ENTER"
+
+                    "..." ->
+                        "..."
+
+                    "WOORDLE6" ->
+                        "WORDLE6"
+
+                    "INSTELLINGEN" ->
+                        "AJUSTES"
+
+                    "AAN" ->
+                        "ACTIVAR"
+
+                    "UIT" ->
+                        "DESACTIVAR"
+
+                    "Donker thema" ->
+                        "Modo oscuro"
+
+                    "Hoog contrast vakjes" ->
+                        "Modo para daltónicos"
+
+                    "Feedback: " ->
+                        "Reacción: "
+
+                    "yele op Twitter" ->
+                        "yele on Twitter"
+
+                    "INSTRUCTIES" ->
+                        "INSTRUCCIONES"
+
+                    "Je hebt gewonnen!!" ->
+                        "Ganaste!!"
+
+                    "Je hebt verloren..." ->
+                        "Perdiste..."
+
+                    "Het woord was: " ->
+                        "La palabra era"
+
+                    "Volgende WOORDLE6" ->
+                        "Siguiente palabrasita"
+
+                    "Delen" ->
+                        "Compartir"
+
+                    "STATISTIEK" ->
+                        "ESTADISTICAS"
+
+                    "GOK VERDELING" ->
+                        "DISTRIBUCION DE CONJETURAS"
+
+                    "gespeeld" ->
+                        "jugó"
+
+                    "Win %" ->
+                        "Victoria %"
+
+                    "Huidige reeks" ->
+                        "Serie actual"
+
+                    "Max reeks" ->
+                        "Rango máximo"
+
+                    "Gok het " ->
+                        "Tratar de advinar el "
+
+                    " in 6 keer." ->
+                        " dentro de 6 conjeturas."
+
+                    "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ->
+                        "Después de cada intento, los colores de los cuadrados te dirán qué tan cerca estuviste."
+
+                    "De letter " ->
+                        "La carta "
+
+                    " zit op de juiste plek in het woord." ->
+                        " esta en el lugar correcto."
+
+                    "Elke dag is er een nieuwe " ->
+                        "Cada día habrá una  "
+
+                    " beschikbaar!" ->
+                        " nueva disponible."
+
+                    " zit in het woord maar op een andere plek." ->
+                        " está en la palabra, pero en un lugar diferente."
+
+                    " zit helemaal niet in het woord." ->
+                        " no está en la palabra en ningún lugar."
+
+                    "Code is beschikbaar " ->
+                        "El código está disponible "
+
+                    "op GitHub" ->
+                        "en GitHub"
+
+                    "Onbekend woord" ->
+                        "Palabra desconocida"
+
+                    "Copied to clipboard" ->
+                        "Copiada al portapapeles"
+
+                    "Can't share" ->
+                        "No puedo compartir"
 
                     other ->
                         -- Single letters can be kept untranslated
