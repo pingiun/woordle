@@ -1578,6 +1578,13 @@ viewEndScreen model =
                             , text " geprobeerd?"
                             ]
 
+                Spanish ->
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/palabrasitas6" }
+                            , text " geprobeerd?"
+                            ]
                     else
                         paragraph [ Font.size 16 ]
                             [ text "Ook al "
@@ -2041,7 +2048,7 @@ text str =
                         "..."
 
                     "WOORDLE6" ->
-                        "WORDLE6"
+                        "Palabrasitas6"
 
                     "INSTELLINGEN" ->
                         "AJUSTES"
@@ -2141,6 +2148,15 @@ text str =
 
                     "Can't share" ->
                         "No puedo compartir"
+
+                    "Ook al " ->
+                        "Has probado "
+                    
+                    " geprobeerd?"
+                        " tambien?"
+
+                    "gewone WOORDLE"
+                        "Palabrasitas regular"
 
                     other ->
                         -- Single letters can be kept untranslated
