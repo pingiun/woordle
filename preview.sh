@@ -12,7 +12,8 @@ python3 -m http.server 8000 &
 python_pid=$!
 popd
 
-trap "kill $python_pid" EXIT
+trap 'kill $python_pid' EXIT
 
-$MAKE export OPTIMIZE=""
-fswatch --one-per-batch src/Main.elm js/*.js app/**/*.html | xargs -n1 -I{} $MAKE export OPTIMIZE=""
+cp -r html/* app
+$MAKE build OPTIMIZE=""
+fswatch --one-per-batch src/Main.elm js/*.js app/**/*.html | xargs -n1 -I{} $MAKE build OPTIMIZE=""

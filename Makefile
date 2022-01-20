@@ -33,6 +33,9 @@ app/js/main6.min.js: js/main6.js
 app/js/main6-en.min.js: js/main6-en.js
 	(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6-en | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6-en | jq -s; echo ";"; cat js/main6-en.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main6-en.min.js
 
-export: app/js/app-en.min.js app/js/app.min.js app/js/main.min.js app/js/main6.min.js app/js/main6-en.min.js
+build: app/js/app-en.min.js app/js/app.min.js app/js/main.min.js app/js/main6.min.js app/js/main6-en.min.js
 
-.PHONY: run export
+export: build
+	./export.sh
+
+.PHONY: build export
