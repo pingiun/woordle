@@ -181,6 +181,11 @@ view model =
 
                 English ->
                     "WORDLE6 | Six letter Wordle"
+
+                Spanish ->
+                    "Palabrasitas6 | rompecabezas de seis letras"
+
+
     in
     Element.layout
         [ Background.color (pageBackground model)
@@ -221,13 +226,22 @@ exampleWords model =
 
                 Dutch ->
                     [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+
+                Spanish ->
+                    [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+
             , case language of
                 English ->
                     [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ]
 
                 Dutch ->
                     [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+
+                Spanish ->
+                    [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
             )
+
+
 
 
 viewHelp : Model -> Element Msg
@@ -842,6 +856,10 @@ createShare model =
 
                         Dutch ->
                             ( "Woordle" ++ String.fromInt l ++ " ", 1 )
+
+                        Spanish ->
+                            ( "Palabrasitas" ++ String.fromInt l ++ " ", 1 )
+
     in
     woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
 
@@ -1421,6 +1439,22 @@ viewShowSettings model =
                             , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                             , text " geprobeerd?"
                             ]
+
+                Spanish ->
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/palabrasitas6" }
+                            , text " geprobeerd?"
+                            ]
+
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                            , text " geprobeerd?"
+                            ]
+
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1452,6 +1486,10 @@ viewShowSettings model =
 
                     Dutch ->
                         Element.none
+
+                    Spanish ->
+                        Element.none
+
                 , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
                 ]
@@ -1577,7 +1615,12 @@ viewEndScreen model =
                             , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
                             , text " geprobeerd?"
                             ]
-
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                            , text " geprobeerd?"
+                            ]
                 Spanish ->
                     if model.wordSize == 5 then
                         paragraph [ Font.size 16 ]
@@ -1585,7 +1628,7 @@ viewEndScreen model =
                             , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/palabrasitas6" }
                             , text " geprobeerd?"
                             ]
-                    else
+                     else
                         paragraph [ Font.size 16 ]
                             [ text "Ook al "
                             , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
@@ -1624,6 +1667,10 @@ viewEndScreen model =
 
                     English ->
                         Element.none
+
+                    Spanish ->
+                        Element.none
+
                 , linkToOther
                 ]
             ]
@@ -2038,6 +2085,9 @@ text str =
 
                     "Can't share" ->
                         "Can't share"
+
+
+
         Spanish ->
             Element.text <|
                 case str of
@@ -2152,11 +2202,13 @@ text str =
                     "Ook al " ->
                         "Has probado "
                     
-                    " geprobeerd?"
+                    " geprobeerd?" ->
                         " tambien?"
 
-                    "gewone WOORDLE"
+                    "gewone WOORDLE" ->
                         "Palabrasitas regular"
+
+
 
                     other ->
                         -- Single letters can be kept untranslated
