@@ -1,7 +1,7 @@
 
 function loadStorage() {
-  const gameState = JSON.parse(localStorage.getItem("gameState-es"));
-  const statistics = JSON.parse(localStorage.getItem("statistics-es"));
+  const gameState = JSON.parse(localStorage.getItem("gameState6-en"));
+  const statistics = JSON.parse(localStorage.getItem("statistics6-en"));
   const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
   const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
@@ -17,7 +17,7 @@ function daysBetween(startDate, endDate) {
   var millisecondsPerDay = 24 * 60 * 60 * 1000;
   return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
-const start_date = new Date(2022, 0, 7);
+const start_date = new Date(2022, 0, 11);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const todays_word = puzzle_words[offset % puzzle_words.length];
 var app = Elm.Main.init({
@@ -28,7 +28,7 @@ var app = Elm.Main.init({
     allWords: all_words,
     todaysWord: todays_word,
     offset: offset,
-    wordSize: 5,
+    wordSize: 6,
     startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 });
@@ -50,9 +50,9 @@ app.ports.share.subscribe(function (sharestring) {
       t.select();
       document.execCommand('copy');
       document.body.removeChild(t)
-      app.ports.makeToast.send("Score gekopieerd");
+      app.ports.makeToast.send("Copied to clipboard");
     }
   } catch {
-    app.ports.makeToast.send("Kon niet delen");
+    app.ports.makeToast.send("Can't share");
   }
 });
