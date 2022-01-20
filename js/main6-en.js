@@ -4,7 +4,8 @@ function loadStorage() {
   const statistics = JSON.parse(localStorage.getItem("statistics6-en"));
   const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
-  return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme }
+  const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
+  return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme, "largeKeyboard": largeKeyboard }
 }
 // https://stackoverflow.com/a/11252167
 function treatAsUTC(date) {
