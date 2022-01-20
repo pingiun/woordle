@@ -1672,10 +1672,10 @@ viewStatitics model =
         maxGuesses =
             List.maximum [ model.statistics.guesses.g1, model.statistics.guesses.g2, model.statistics.guesses.g3, model.statistics.guesses.g4, model.statistics.guesses.g5, model.statistics.guesses.g6 ] |> Maybe.withDefault 1
 
-        bar n =
+        bar i guesses =
             let
                 bgColor =
-                    if n == maxGuesses then
+                    if i == (boardLength model.board) && model.playState == Won then
                         correctColor model
 
                     else
@@ -1684,8 +1684,8 @@ viewStatitics model =
             el
                 [ Background.color bgColor
                 , height (px 18)
-                , width (px (max 20 (round (toFloat widthLeft / toFloat maxGuesses * toFloat n))))
-                , inFront (el [ alignRight, paddingXY 5 0, Font.color (vakjeTextColor model) ] <| text (String.fromInt n))
+                , width (px (max 20 (round (toFloat widthLeft / toFloat maxGuesses * toFloat guesses))))
+                , inFront (el [ alignRight, paddingXY 5 0, Font.color (vakjeTextColor model) ] <| text (String.fromInt guesses))
                 ]
                 Element.none
     in
@@ -1700,12 +1700,12 @@ viewStatitics model =
         , el [ height (px 10) ] Element.none
         , el [ Font.bold, centerX ] (text "GOK VERDELING")
         , column [ spacing 5 ]
-            [ row [ Font.size 18, spacing 5 ] [ text "1", bar model.statistics.guesses.g1 ]
-            , row [ Font.size 18, spacing 5 ] [ text "2", bar model.statistics.guesses.g2 ]
-            , row [ Font.size 18, spacing 5 ] [ text "3", bar model.statistics.guesses.g3 ]
-            , row [ Font.size 18, spacing 5 ] [ text "4", bar model.statistics.guesses.g4 ]
-            , row [ Font.size 18, spacing 5 ] [ text "5", bar model.statistics.guesses.g5 ]
-            , row [ Font.size 18, spacing 5 ] [ text "6", bar model.statistics.guesses.g6 ]
+            [ row [ Font.size 18, spacing 5 ] [ text "1", bar 1 model.statistics.guesses.g1 ]
+            , row [ Font.size 18, spacing 5 ] [ text "2", bar 2 model.statistics.guesses.g2 ]
+            , row [ Font.size 18, spacing 5 ] [ text "3", bar 3 model.statistics.guesses.g3 ]
+            , row [ Font.size 18, spacing 5 ] [ text "4", bar 4 model.statistics.guesses.g4 ]
+            , row [ Font.size 18, spacing 5 ] [ text "5", bar 5 model.statistics.guesses.g5 ]
+            , row [ Font.size 18, spacing 5 ] [ text "6", bar 6 model.statistics.guesses.g6 ]
             ]
         , el [ height (px 10) ] Element.none
         , el [ Border.width 1, width fill ] Element.none
