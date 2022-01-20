@@ -15,10 +15,10 @@ app/js/app.min.js: src/Main.elm
 	rm -rf app.js
 
 app/js/main.min.js: js/main.js
-	(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words-sp | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words-sp | jq -s; echo ";"; cat js/main.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main.min.js
+	(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words-es | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/puzzle-words-es | jq -s; echo ";"; cat js/main.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main.min.js
 
 app/js/main6.min.js: js/main6.js
-	(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6-sp | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6-sp | jq -s; echo ";"; cat js/main6.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main6.min.js
+	(echo -n "const puzzle_words = "; jq --raw-input < data/puzzle-words6-es | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/puzzle-words6-es | jq -s; echo ";"; cat js/main6.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main6.min.js
 
 export: app/js/app.min.js app/js/main.min.js app/js/main6.min.js 
 
