@@ -12,6 +12,7 @@ Om de Elm compilatie juist te laten verlopen heb ik een Makefile gemaakt die bed
 De programma's die je nodig hebt zijn (en commando's voor macOS):
 
 - make (`brew install make`, gebruik commando `gmake`)
+- jq (`brew install jq`)
 - fswatch (`brew install fswatch`, alleen nodig voor `./preview.sh`)
 - python3 (`brew install python3`, alleen nodig voor `./preview.sh`)
 - elm ([installatie instructies op de Elm site][elm-install])
