@@ -552,7 +552,12 @@ storageSuffix : Model -> String
 storageSuffix model =
     case model.wordSize of
         5 ->
-            ""
+            case language of
+                English ->
+                    "-en"
+
+                Dutch ->
+                    ""
 
         l ->
             let
