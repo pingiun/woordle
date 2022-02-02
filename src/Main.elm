@@ -862,7 +862,12 @@ createShare model =
         ( woordle, extraOffset ) =
             case model.wordSize of
                 5 ->
-                    ( "Woordle ", 202 )
+                    case language of
+                        English ->
+                            ( "Wordle ", 1 )
+
+                        Dutch ->
+                            ( "Woordle ", 202 )
 
                 l ->
                     case language of
@@ -1675,7 +1680,7 @@ viewStatitics model =
         bar i guesses =
             let
                 bgColor =
-                    if i == (boardLength model.board) && model.playState == Won then
+                    if i == boardLength model.board && model.playState == Won then
                         correctColor model
 
                     else
