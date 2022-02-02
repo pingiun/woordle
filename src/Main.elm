@@ -869,7 +869,7 @@ createShare model =
                 5 ->
                     case language of
                         English ->
-                            ( "Wordle ", 1 )
+                            ( "Wordle ", 0 )
 
                         Dutch ->
                             ( "Woordle ", 202 )
