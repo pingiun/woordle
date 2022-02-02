@@ -40,6 +40,7 @@ installeren met `mv pre-push-hook .git/hooks/pre-push-hook`.
 - 2022-01-12 NRC: "De computerscience-student Jelle Besseling las het en bouwde in een dag een variant in eigen taal: Woordle. Leuk natuurlijk, maar met veel minder liefde." [artikel](https://archive.is/LQwsS#selection-1451.154-1451.307)
 - 2022-01-13 NOS op 3 Tech Podcast: Ik sprak over hoe het fijn is dat de code van Woordle open beschikbaar is: https://overcast.fm/+X61Ofn5GU
 - 2022-01-15 In [POM](https://overcast.fm/+GlHV8gA4Y) gaat het over Wordle en ook over Woordle, gemaakt door "Jesse Besseling"... helaas
+- 2022-01-31 Trouw: [De razend populaire Lingo-reïncarnatie Wo(o)rdle trekt dagelijks 35.000 Nederlandse spelers](https://www.trouw.nl/economie/de-razend-populaire-lingo-reincarnatie-wo-o-rdle-trekt-dagelijks-35-000-nederlandse-spelers~bd964fa6/) | [archive.is](https://archive.is/srSG9)
 
 
 ## Licentie
