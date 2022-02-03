@@ -20,7 +20,7 @@ app/js/main.min.js: js/main.js
 app/js/main6.min.js: js/main6.js
 	(echo -n "const puzzle_words = "; jq --raw-input < data/all-words6-fy | jq -s; echo ";"; echo "const all_words = "; jq --raw-input < data/all-words6-fy | jq -s; echo ";"; cat js/main6.js) | $(NPMBIN)/uglifyjs --mangle --output app/js/main6.min.js
 
-build: app/js/app-en.min.js app/js/app.min.js app/js/main.min.js app/js/main6.min.js
+build: app/js/app.min.js app/js/main.min.js app/js/main6.min.js
 
 export: build
 	./export.sh
