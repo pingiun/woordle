@@ -1,7 +1,7 @@
 
 function loadStorage() {
-  const gameState = JSON.parse(localStorage.getItem("gameState6"));
-  const statistics = JSON.parse(localStorage.getItem("statistics6"));
+  const gameState = JSON.parse(localStorage.getItem("gameState6-fy"));
+  const statistics = JSON.parse(localStorage.getItem("statistics6-fy"));
   const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
   const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
@@ -17,7 +17,7 @@ function daysBetween(startDate, endDate) {
   var millisecondsPerDay = 24 * 60 * 60 * 1000;
   return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
-const start_date = new Date(2022, 0, 10);
+const start_date = new Date(2022, 1, 3);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const todays_word = puzzle_words[offset % puzzle_words.length];
 var app = Elm.Main.init({

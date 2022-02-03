@@ -214,11 +214,17 @@ exampleWords model =
 
                 Dutch ->
                     [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+
+                Frisian ->
+                    [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
             , case language of
                 English ->
                     [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ]
 
                 Dutch ->
+                    [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+
+                Frisian ->
                     [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
             )
 
@@ -559,6 +565,9 @@ storageSuffix model =
                 Dutch ->
                     ""
 
+                Frisian ->
+                    "-fy"
+
         l ->
             let
                 suffix =
@@ -570,6 +579,9 @@ storageSuffix model =
 
                 Dutch ->
                     suffix
+
+                Frisian ->
+                    suffix ++ "-fy"
 
 
 modelToJson : Model -> String
@@ -874,6 +886,9 @@ createShare model =
                         Dutch ->
                             ( "Woordle ", 202 )
 
+                        Frisian ->
+                            ( "Wurdl ", 1 )
+
                 l ->
                     case language of
                         English ->
@@ -881,6 +896,9 @@ createShare model =
 
                         Dutch ->
                             ( "Woordle" ++ String.fromInt l ++ " ", 1 )
+
+                        Frisian ->
+                            ( "Wurdl" ++ String.fromInt l ++ " ", 1 )
     in
     woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
 
@@ -1449,6 +1467,9 @@ viewSettings model =
                 English ->
                     Element.none
 
+                Frisian ->
+                    Element.none
+
                 Dutch ->
                     if model.wordSize == 5 then
                         paragraph [ Font.size 16 ]
@@ -1497,6 +1518,9 @@ viewSettings model =
                         paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ]
 
                     Dutch ->
+                        Element.none
+
+                    Frisian ->
                         Element.none
                 , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
@@ -1630,6 +1654,9 @@ viewEndScreen model =
                             , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                             , text " geprobeerd?"
                             ]
+
+                Frisian ->
+                    Element.none
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1662,6 +1689,9 @@ viewEndScreen model =
                             ]
 
                     English ->
+                        Element.none
+
+                    Frisian ->
                         Element.none
                 , linkToOther
                 ]
@@ -1944,13 +1974,14 @@ darken c =
 type Language
     = English
     | Dutch
+    | Frisian
 
 
 language : Language
 language =
     {- The line below is replaced with in export.html such that Dutch is commented and the end of the comment ends up below -}
     {- English -}
-    Dutch
+    Frisian
 
 
 
@@ -2080,6 +2111,133 @@ text str =
 
                         else
                             other
+
+        Frisian ->
+            Element.text <|
+                case str of
+                    "ENTER" ->
+                        "ENTER"
+
+                    "..." ->
+                        "..."
+
+                    "WOORDLE" ->
+                        "WURDLE"
+
+                    "WOORDLE6" ->
+                        "WURDLE6"
+
+                    "INSTELLINGEN" ->
+                        "YNSTELLINGS"
+
+                    "AAN" ->
+                        "OAN"
+
+                    "UIT" ->
+                        "ÚT"
+
+                    "Donker thema" ->
+                        "Donker tema"
+
+                    "Hoog contrast vakjes" ->
+                        "Heech kontrast fakjes"
+
+                    "Feedback: " ->
+                        "Feedback: "
+
+                    "yele op Twitter" ->
+                        "yele op Twitter"
+
+                    "INSTRUCTIES" ->
+                        "YNSTRUKSJES"
+
+                    "Je hebt gewonnen!!" ->
+                        "Do hast wûn!!"
+
+                    "Je hebt verloren..." ->
+                        "Do hast ferlern..."
+
+                    "Het woord was: " ->
+                        "It wurd wie: "
+
+                    "Volgende WOORDLE6" ->
+                        "Folgjende WURDLE6"
+
+                    "Delen" ->
+                        "Diele"
+
+                    "STATISTIEK" ->
+                        "STATISTYK"
+
+                    "GOK VERDELING" ->
+                        "GOK FERDIELING"
+
+                    "gespeeld" ->
+                        "spile"
+
+                    "Win %" ->
+                        "Win %"
+
+                    "Huidige reeks" ->
+                        "Hjoeddeistige rige"
+
+                    "Max reeks" ->
+                        "Maks. rige"
+
+                    "Gok het " ->
+                        "Dochris in gok "
+
+                    " in 6 keer." ->
+                        " yn 6 kear."
+
+                    "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ->
+                        "Nei elke gok sille de kleuren fan de fakjes oanjaan hoe tichtby oftsto wiest."
+
+                    "De letter " ->
+                        "De letter "
+
+                    " zit op de juiste plek in het woord." ->
+                        " sit op it júste plak yn it wurd."
+
+                    "Elke dag is er een nieuwe " ->
+                        "Alle dagen is der in nije "
+
+                    " beschikbaar!" ->
+                        " beskikber!"
+
+                    " zit in het woord maar op een andere plek." ->
+                        " sit yn it wurd mar op in oar plak."
+
+                    " zit helemaal niet in het woord." ->
+                        " sit hielendal net yn it wurd."
+
+                    "Grotere toetsenbord letters" ->
+                        "Gruttere toetseboerdbrieven"
+
+                    "Volgende WOORDLE" ->
+                        "Folgjende WURDLE"
+
+                    "Code is beschikbaar " ->
+                        "Koade is beskikber "
+
+                    "op GitHub" ->
+                        "op GitHub"
+
+                    "Onbekend woord" ->
+                        "Unbekend wurd"
+
+                    "Score gekopieerd" ->
+                        "Kopiearje nei klamboerd"
+
+                    "Kon niet delen" ->
+                        "Kin net diele"
+
+                    other ->
+                        if String.length other == 1 then
+                            other
+
+                        else
+                            "AAA moet nog vertalen" ++ other
 
 
 main : Program InitialData Model Msg
