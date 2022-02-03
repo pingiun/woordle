@@ -83,7 +83,7 @@ type CharGuess
 
 
 type alias Keyboard =
-    ( BoardWord, BoardWord, BoardWord )
+    { accents : BoardWord, first : BoardWord, second : BoardWord, third : BoardWord }
 
 
 type PlayState
@@ -118,7 +118,7 @@ type alias Guesses =
 
 type Msg
     = TouchKey Char
-    | Keyboard Key
+    | RealKey Key
     | NewSize Int Int
     | NewTime Posix
     | NewZone Zone
@@ -394,14 +394,15 @@ viewBoardSquare model elem =
 viewKeyboard : Model -> Element Msg
 viewKeyboard model =
     let
-        ( first, second, third ) =
+        { accents, first, second, third } =
             model.keyboard
 
         maxHeight =
             0.3 * toFloat model.window.height |> min 260 |> round
     in
     column [ width fill, height (fill |> maximum maxHeight), alignBottom, spacing 10, paddingXY 5 5 ]
-        [ row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
+        [row [ width fill, height fill, spacing 5, centerX ] (accents |> List.map (viewKey model))
+        , row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ]
             (el [ width (fill |> maximum 50) ]
@@ -795,10 +796,11 @@ emptyStatistics =
 
 startKeyboard : Keyboard
 startKeyboard =
-    ( List.map New (String.toList "qwertyuiop")
-    , List.map New (String.toList "asdfghjkl⌫")
-    , List.map New (String.toList "zxcvbnm↵")
-    )
+    { accents = List.map New (String.toList "ûôêâúéüöïëä")
+    , first = List.map New (String.toList "qwertyuiop")
+    , second = List.map New (String.toList "asdfghjkl⌫")
+    , third = List.map New (String.toList "zxcvbnm↵")
+    }
 
 
 modelFromJson : D.Value -> Int -> String -> Bool -> Model
@@ -856,10 +858,10 @@ toKey : String -> Msg
 toKey string =
     case String.uncons string of
         Just ( char, "" ) ->
-            Keyboard (Character char)
+            RealKey (Character char)
 
         _ ->
-            Keyboard (Control string)
+            RealKey (Control string)
 
 
 createShare : Model -> String
@@ -949,16 +951,16 @@ update msg model =
                 TouchKey x ->
                     maybeHandleCharacter x model
 
-                Keyboard (Character x) ->
+                RealKey (Character x) ->
                     maybeHandleCharacter x model
 
-                Keyboard (Control "Backspace") ->
+                RealKey (Control "Backspace") ->
                     maybeHandleCharacter '⌫' model
 
-                Keyboard (Control "Enter") ->
+                RealKey (Control "Enter") ->
                     maybeHandleCharacter '↵' model
 
-                Keyboard _ ->
+                RealKey _ ->
                     model
 
                 NewSize w h ->
@@ -1002,7 +1004,7 @@ update msg model =
                 ( TouchKey _, Playing ) ->
                     save (modelToJson newModel)
 
-                ( Keyboard _, Playing ) ->
+                ( RealKey _, Playing ) ->
                     save (modelToJson newModel)
 
                 ( SetDarkMode _, _ ) ->
@@ -1084,7 +1086,7 @@ handleCharacter x model =
                 { model | toasts = { content = text "Onbekend woord", removeAt = inTwoSeconds model.currentTime } :: model.toasts }
 
         thekey ->
-            if Char.isAlpha thekey then
+            if Char.isAlpha thekey || (String.indexes (String.fromList [ thekey ]) "ûôêâúéüöïëä" |> List.length) > 0 then
                 { model | board = updateLastWord model (Char.toLower thekey) model.board }
 
             else
@@ -1393,13 +1395,13 @@ updateRow c row =
 
 
 updateKeyboard : BoardWord -> Keyboard -> Keyboard
-updateKeyboard word (( first, second, third ) as keyboard_) =
+updateKeyboard word ({accents, first, second, third } as keyboard_) =
     case word of
         [] ->
             keyboard_
 
         x :: xs ->
-            updateKeyboard xs ( updateRow x first, updateRow x second, updateRow x third )
+            updateKeyboard xs { accents = updateRow x accents, first = updateRow x first, second = updateRow x second, third = updateRow x third }
 
 
 titel : Model -> String
