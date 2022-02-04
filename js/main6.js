@@ -2,7 +2,7 @@
 function loadStorage() {
   const gameState = JSON.parse(localStorage.getItem("gameState6-fy"));
   const statistics = JSON.parse(localStorage.getItem("statistics6-fy"));
-  const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
+  const darkTheme = false;
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
   const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
   return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme, "largeKeyboard": largeKeyboard }
@@ -29,7 +29,7 @@ var app = Elm.Main.init({
     todaysWord: todays_word,
     offset: offset,
     wordSize: 6,
-    startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    startDarkMode: false
   }
 });
 app.ports.save.subscribe(function (value) {
