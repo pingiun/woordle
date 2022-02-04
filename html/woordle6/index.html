@@ -6,32 +6,44 @@
   <script type="text/javascript" src="/js/app.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
-  <title>Wurdl6</title>
+  <title>Wurdl6 mar Frysk</title>
   <meta name="description" content="Wurdl mar Frsyk">
 
   <!-- FB Meta Tags -->
-  <meta property="og:url" content="https://woordle.nl/woordle6/">
+  <meta property="og:url" content="https://wurdl.frl/woordle6/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Wurdl6">
   <meta property="og:description" content="Wurdl mar Frsyk">
-  <meta property="og:image" content="https://woordle.nl/images/woordle_og_1200x630.png">
+  <meta property="og:image" content="https://wurdl.frl/images/wurdl_og_1200x630.png">
 
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="twitter:domain" content="woordle.nl">
+  <meta property="twitter:domain" content="wurdl.frl">
 
   <meta name="theme-color" content="#3CDA44" />
   <link rel="manifest" href="/manifest.json" />
-  <link href="/images/woordle_logo_32x32.png" rel="icon shortcut" sizes="3232" />
-  <link href="/images/woordle_logo_192x192.png" rel="apple-touch-icon" />
+  <link href="/images/wurdl_logo_32x32.png" rel="icon shortcut" sizes="3232" />
+  <link href="/images/wurdl_logo_192x192.png" rel="apple-touch-icon" />
+
+  <link rel="preload" href="/fonts/OpenSans-Regular.woff2" crossorigin="anonymous" as="font" type="font/woff2">
+  <link rel="preload" href="/fonts/OpenSans-Bold.woff2" crossorigin="anonymous" as="font" type="font/woff2">
 
   <style>
+    @font-face {
+      font-family: "Open Sans";
+      src: url("/fonts/OpenSans-Regular.woff2") format("woff2"),
+        url("/fonts/OpenSans-Bold.woff2") format("woff2");
+      font-display: optional;
+    }
+
     div[role="button"] {
       touch-action: manipulation;
     }
+
     @media (prefers-color-scheme: dark) {
       body {
-        background: rgb(21, 23, 20); color: white;
+        background: rgb(21, 23, 20);
+        color: white;
       }
     }
   </style>
