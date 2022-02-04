@@ -313,28 +313,16 @@ helpButton : Element Msg
 helpButton =
     button
         [ alignRight
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, width (px 15) ] (text "?")))
         ]
-        { onPress = Just (ShowHelp True), label = Element.none }
+        { onPress = Just (ShowHelp True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/question-mark.svg", description = "help"}) }
 
 
 settingsButton : Element Msg
 settingsButton =
     button
         [ alignRight
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, paddingEach { bottom = 10, left = 0, top = 0, right = 3 } ] (text "...")))
         ]
-        { onPress = Just (ShowSettings True), label = Element.none }
+        { onPress = Just (ShowSettings True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/gear.svg", description = "instellingen"}) }
 
 
 viewBoard : Model -> Element msg
