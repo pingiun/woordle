@@ -176,7 +176,11 @@ port makeToast : (String -> msg) -> Sub msg
 view : Model -> Html.Html Msg
 view model =
     Element.layout
-        [ Background.color (pageBackground model)
+        [ Font.family
+            [ Font.typeface "Open Sans"
+            , Font.sansSerif
+            ]
+        , Background.color (pageBackground model)
         , Font.color (textColor model)
         , height (px model.window.height)
         , width (px model.window.width)
@@ -278,31 +282,37 @@ viewHelp model =
 
 viewBody : Model -> Element Msg
 viewBody model =
-    column [ centerX, height fill, width (fill |> maximum 600), spacing 20 ]
+    column [ centerX, height fill, width fill, spacing 20 ]
         [ viewHeader model
-        , viewBoard model
-        , viewKeyboard model
+        , column [ centerX, height fill, width (fill |> maximum 600) ]
+            [ viewBoard model
+            , viewKeyboard model
+            ]
         ]
 
 
 viewHeader : Model -> Element Msg
 viewHeader model =
-    row
-        [ height (px 60)
-        , padding 15
+    el
+        [ height (px 65)
+        , paddingXY 15 0
         , width fill
-        , Border.widthEach { bottom = 2, left = 0, right = 0, top = 0 }
+        , centerX
+        , centerY
+        , Background.color geelHeader
         ]
-        [ helpButton
-        , el [ centerY, centerX ] (text (titel model))
-        , settingsButton
-        ]
+        (row [ centerX, centerY, width (fill |> maximum 600), spacing 10 ]
+            [ Element.image [ height (px 40), centerY ] { src = "images/wurdl-title.svg", description = "Wurdle mar Frysk" }
+            , settingsButton
+            , helpButton
+            ]
+        )
 
 
 helpButton : Element Msg
 helpButton =
     button
-        [ alignLeft
+        [ alignRight
         , padding 10
         , Border.width 2
         , rounded 100
@@ -316,7 +326,7 @@ helpButton =
 settingsButton : Element Msg
 settingsButton =
     button
-        [ alignLeft
+        [ alignRight
         , padding 10
         , Border.width 2
         , rounded 100
@@ -338,7 +348,7 @@ viewBoard model =
         , centerX
         , width (px w)
         , height (px h)
-        , Font.size (floor (toFloat h / 7.5))
+        , Font.size (floor (toFloat h / 8.5))
         ]
         (List.map (viewBoardRow model) (List.take 6 (fillList model.board 6)))
 
@@ -363,10 +373,10 @@ viewBoardSquare model elem =
         ( bgColor, borderColor, c ) =
             case elem of
                 Nothing ->
-                    ( Background.color (pageBackground model), darkgrey, Element.none )
+                    ( Background.color newVakjeBgColor, geelOutline, Element.none )
 
                 Just (New x) ->
-                    ( Background.color (pageBackground model), lightgrey, text (charToString (Char.toUpper x)) )
+                    ( Background.color newVakjeBgColor, geelOutline, text (charToString (Char.toUpper x)) )
 
                 Just (Correct x) ->
                     ( Background.color (correctColor model), correctColor model, text (charToString (Char.toUpper x)) )
@@ -385,7 +395,7 @@ viewBoardSquare model elem =
                 _ ->
                     vakjeTextColor model
     in
-    el [ width fill, height fill, Border.width 3, Border.solid, Border.color borderColor, bgColor, Font.color fgColor ]
+    el [ width fill, height fill, Border.rounded 7, Border.width 3, Border.solid, Border.color borderColor, bgColor, Font.bold, Font.color fgColor ]
         (el [ centerX, centerY ]
             c
         )
@@ -401,7 +411,7 @@ viewKeyboard model =
             0.3 * toFloat model.window.height |> min 260 |> round
     in
     column [ width fill, height (fill |> maximum maxHeight), alignBottom, spacing 10, paddingXY 5 5 ]
-        [row [ width fill, height fill, spacing 5, centerX ] (accents |> List.map (viewKey model))
+        [ row [ width fill, height fill, spacing 5, centerX ] (accents |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ]
@@ -416,19 +426,19 @@ viewKeyboard model =
 viewKey : Model -> CharGuess -> Element Msg
 viewKey model letter =
     let
-        ( bgColor, c ) =
+        ( txtColor, bgColor, c ) =
             case letter of
                 New x ->
-                    ( keyColor model, x )
+                    ( newVakjeTextColor model, keyColor model, x )
 
                 Correct x ->
-                    ( correctColor model, x )
+                    ( vakjeTextColor model, correctColor model, x )
 
                 Place x ->
-                    ( placeColor model, x )
+                    ( vakjeTextColor model, placeColor model, x )
 
                 Wrong x ->
-                    ( wrongColor model, x )
+                    ( vakjeTextColor model, wrongColor model, x )
 
         ( buttontext, bwidth, fontSize ) =
             case ( c, model.useLargeKeyboard ) of
@@ -460,7 +470,15 @@ viewKey model letter =
                             30
                     )
     in
-    button [ Background.color bgColor, Element.mouseDown [ Background.color (darken bgColor) ], width (fill |> maximum bwidth), height fill, rounded 10, Font.size fontSize ]
+    button
+        [ Background.color bgColor
+        , Element.mouseDown [ Background.color (darken bgColor) ]
+        , width (fill |> maximum bwidth)
+        , height fill
+        , rounded 10
+        , Font.size fontSize
+        , Font.color txtColor
+        ]
         { onPress = Just (TouchKey (Char.toLower c)), label = el [ centerX, centerY ] buttontext }
 
 
@@ -796,7 +814,7 @@ emptyStatistics =
 
 startKeyboard : Keyboard
 startKeyboard =
-    { accents = List.map New (String.toList "ûôêâúéüöïëä")
+    { accents = List.map New (String.toList "äâëêéïöôüûú")
     , first = List.map New (String.toList "qwertyuiop")
     , second = List.map New (String.toList "asdfghjkl⌫")
     , third = List.map New (String.toList "zxcvbnm↵")
@@ -1395,7 +1413,7 @@ updateRow c row =
 
 
 updateKeyboard : BoardWord -> Keyboard -> Keyboard
-updateKeyboard word ({accents, first, second, third } as keyboard_) =
+updateKeyboard word ({ accents, first, second, third } as keyboard_) =
     case word of
         [] ->
             keyboard_
@@ -1501,10 +1519,6 @@ viewSettings model =
             ]
             [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTELLINGEN")
-                , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Donker thema" ], onOffButton model (SetDarkMode (not model.useDarkMode)) model.useDarkMode ]
-                , el [ height (px 10) ] Element.none
-                , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Hoog contrast vakjes" ], onOffButton model (SetContrastMode (not model.useContrastMode)) model.useContrastMode ]
                 , el [ height (px 10) ] Element.none
@@ -1829,7 +1843,7 @@ darkgrey =
 
 greenColor : Element.Color
 greenColor =
-    rgb255 60 218 68
+    rgb255 0x29 0xAA 0x2D
 
 
 buttonOn : Model -> Element.Color
@@ -1861,20 +1875,12 @@ correctColor model =
 
 placeColor : Model -> Element.Color
 placeColor model =
-    if model.useContrastMode then
-        lightBlueColor
-
-    else
-        yellow
+    oker
 
 
 wrongColor : Model -> Element.Color
 wrongColor model =
-    if model.useDarkMode then
-        darken darkgrey
-
-    else
-        darkgrey
+    donkergrijs
 
 
 redColor : Element.Color
@@ -1907,13 +1913,23 @@ lightgrey =
     rgb255 200 200 200
 
 
+oker : Element.Color
+oker =
+    rgb255 0xF2 0xC0 0x23
+
+
 pageBackground : Model -> Element.Color
 pageBackground model =
-    if model.useDarkMode then
-        darkBackground
+    case language of
+        Frisian ->
+            lichtgeel
 
-    else
-        white
+        _ ->
+            if model.useDarkMode then
+                darkBackground
+
+            else
+                white
 
 
 darkBackground : Element.Color
@@ -1923,11 +1939,7 @@ darkBackground =
 
 textColor : Model -> Element.Color
 textColor model =
-    if model.useDarkMode then
-        lightText
-
-    else
-        black
+    donkergrijs
 
 
 vakjeTextColor : Model -> Element.Color
@@ -1947,6 +1959,10 @@ newVakjeTextColor model =
         black
 
 
+newVakjeBgColor =
+    rgb255 255 255 255
+
+
 lightText =
     rgb255 240 240 240
 
@@ -1955,13 +1971,25 @@ black =
     rgb255 0 0 0
 
 
+donkergrijs =
+    rgb255 0x3D 0x3D 0x3D
+
+
+lichtgeel =
+    rgb255 0xFF 0xF5 0xC9
+
+
+geelHeader =
+    rgb255 0xFB 0xCD 0x44
+
+
+geelOutline =
+    rgb255 0xFF 0xEB 0x94
+
+
 keyColor : Model -> Element.Color
 keyColor model =
-    if model.useDarkMode then
-        darken lightgrey
-
-    else
-        lightgrey
+    white
 
 
 darken : Element.Color -> Element.Color
@@ -2214,7 +2242,7 @@ text str =
                         " sit hielendal net yn it wurd."
 
                     "Grotere toetsenbord letters" ->
-                        "Gruttere toetseboerdbrieven"
+                        "Gruttere toetseboerdletters"
 
                     "Volgende WOORDLE" ->
                         "Folgjende WURDLE"

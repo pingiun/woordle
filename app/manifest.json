@@ -1,6 +1,6 @@
 {
-  "short_name": "Woordle",
-  "name": "Woordle",
+  "short_name": "Wurdl",
+  "name": "Wurdl",
   "icons": [
     {
       "src": "images/woordle_logo_48x48.png",
@@ -38,9 +38,9 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "https://woordle.nl",
-  "background_color": "#3CDA44",
+  "start_url": "https://wurdl.frl",
+  "background_color": "#fff5c9",
   "display": "standalone",
-  "theme_color": "#3CDA44",
-  "description": "Een dagelijks woordspelletje"
+  "theme_color": "#fbcd44",
+  "description": "Wurdl mar Frysk"
 }
