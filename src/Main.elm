@@ -39,7 +39,9 @@ import Element.Border as Border exposing (rounded)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
+import Element.Region exposing (description)
 import Html
+import Html.Attributes exposing (attribute)
 import Json.Decode as D
 import Json.Encode as E
 import Set exposing (Set)
@@ -1931,20 +1933,10 @@ textColor model =
 
 
 vakjeTextColor : Model -> Element.Color
-vakjeTextColor model =
-    if model.useDarkMode then
-        lightText
-
-    else
-        white
+vakjeTextColor model = white
 
 
-newVakjeTextColor model =
-    if model.useDarkMode then
-        lightText
-
-    else
-        black
+newVakjeTextColor model = donkergrijs
 
 
 newVakjeBgColor =
