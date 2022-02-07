@@ -203,35 +203,40 @@ maybeViewHelp model =
         Element.none
 
 
-exampleWords : Model -> ( BoardWord, BoardWord, BoardWord )
+exampleWords : Model -> ( ( String, BoardWord ), ( String, BoardWord ), ( String, BoardWord ) )
 exampleWords model =
     case model.wordSize of
         5 ->
-            ( [ Correct 'W', New 'O', New 'O', New 'R', New 'D' ]
-            , [ New 'P', Place 'U', New 'P', New 'I', New 'L' ]
-            , [ New 'T', New 'R', New 'O', Wrong 'E', New 'P' ]
+            ( ( "B", [ Correct 'B', New 'U', New 'T', New 'E', New 'N' ] )
+            , ( "R", [ New 'T', Place 'R', New 'O', New 'C', New 'H' ] )
+            , ( "A", [ New 'S', New 'L', New 'E', Wrong 'A', New 'T' ] )
             )
 
         _ ->
-            ( [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ]
+            ( case language of
+                Frisian ->
+                    ( "Ú", [ Correct 'Ú', New 'T', New 'S', New 'I', New 'G', New 'E' ] )
+
+                _ ->
+                    ( "W", [ Correct 'W', New 'O', New 'R', New 'D', New 'L', New 'E' ] )
             , case language of
                 English ->
-                    [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ]
+                    ( "U", [ New 'B', Place 'U', New 'R', New 'D', New 'E', New 'N' ] )
 
                 Dutch ->
-                    [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+                    ( "U", [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ] )
 
                 Frisian ->
-                    [ New 'S', Place 'U', New 'R', New 'F', New 'E', New 'N' ]
+                    ( "Ë", [ New 'P', New 'O', Place 'Ë', New 'M', New 'E', New 'N' ] )
             , case language of
                 English ->
-                    [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ]
+                    ( "E", [ New 'A', New 'N', New 'S', New 'W', Wrong 'E', New 'R' ] )
 
                 Dutch ->
-                    [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+                    ( "E", [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ] )
 
                 Frisian ->
-                    [ New 'C', New 'H', New 'I', New 'Q', New 'U', Wrong 'E' ]
+                    ( "Y", [ New 'W', Wrong 'Y', New 'K', New 'E', New 'I', New 'N' ] )
             )
 
 
@@ -244,8 +249,23 @@ viewHelp model =
         widthLeft =
             w - (2 * modalPadding model)
 
-        ( first, second, third ) =
+        ( ( firstLetter, first ), ( secondLetter, second ), ( thirdLetter, third ) ) =
             exampleWords model
+
+        otherLink =
+            if model.wordSize == 5 then
+                paragraph []
+                    [ text "Er is ook "
+                    , newTabLink [ Font.color linkColor ] { label = text "WURDL6", url = "/woordle6" }
+                    , text "!"
+                    ]
+
+            else
+                paragraph []
+                    [ text "Er is ook "
+                    , newTabLink [ Font.color linkColor ] { label = text "gewone WURDL", url = "/" }
+                    , text "!"
+                    ]
     in
     el [ Background.color darkened_bg, onClick (ShowHelp False), centerX, centerY, width fill, height fill ]
         (column
@@ -268,15 +288,16 @@ viewHelp model =
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just first))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text firstLetter), text " zit op de juiste plek in het woord." ]
                 , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just second))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text secondLetter), text " zit in het woord maar op een andere plek." ]
                 , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just third))
-                , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
+                , paragraph [] [ text "De letter ", el [ Font.bold ] (text thirdLetter), text " zit helemaal niet in het woord." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , paragraph [] [ text "Elke dag is er een nieuwe ", el [ Font.bold ] (text (titel model)), text " beschikbaar!" ]
+                , otherLink
                 ]
             ]
         )
@@ -304,7 +325,7 @@ viewHeader model =
         , Background.color geelHeader
         ]
         (row [ centerX, centerY, width (fill |> maximum 600), spacing 10 ]
-            [ Element.image [ height (px 40), centerY ] { src = "images/wurdl-title.svg", description = "Wurdle mar Frysk" }
+            [ Element.image [ height (px 40), centerY ] { src = "/images/wurdl-title.svg", description = "Wurdl mar Frysk" }
             , settingsButton
             , helpButton
             ]
@@ -316,7 +337,7 @@ helpButton =
     button
         [ alignRight
         ]
-        { onPress = Just (ShowHelp True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/question-mark.svg", description = "help"}) }
+        { onPress = Just (ShowHelp True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/question-mark.svg", description = "help" }) }
 
 
 settingsButton : Element Msg
@@ -324,7 +345,7 @@ settingsButton =
     button
         [ alignRight
         ]
-        { onPress = Just (ShowSettings True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/gear.svg", description = "instellingen"}) }
+        { onPress = Just (ShowSettings True), label = el [ width (px 30), height (px 30) ] (Element.image [] { src = "/images/gear.svg", description = "instellingen" }) }
 
 
 viewBoard : Model -> Element msg
@@ -1662,7 +1683,19 @@ viewEndScreen model =
                             ]
 
                 Frisian ->
-                    Element.none
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "WURDL6", url = "/woordle6" }
+                            , text " geprobeerd?"
+                            ]
+
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Ook al "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewone WURDL", url = "/" }
+                            , text " geprobeerd?"
+                            ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1933,10 +1966,12 @@ textColor model =
 
 
 vakjeTextColor : Model -> Element.Color
-vakjeTextColor model = white
+vakjeTextColor model =
+    white
 
 
-newVakjeTextColor model = donkergrijs
+newVakjeTextColor model =
+    donkergrijs
 
 
 newVakjeBgColor =
@@ -2132,10 +2167,10 @@ text str =
                         "..."
 
                     "WOORDLE" ->
-                        "WURDLE"
+                        "WURDL"
 
                     "WOORDLE6" ->
-                        "WURDLE6"
+                        "WURDL6"
 
                     "INSTELLINGEN" ->
                         "YNSTELLINGS"
@@ -2171,7 +2206,7 @@ text str =
                         "It wurd wie: "
 
                     "Volgende WOORDLE6" ->
-                        "Folgjende WURDLE6"
+                        "Folgjende WURDL6"
 
                     "Delen" ->
                         "Diele"
@@ -2225,7 +2260,7 @@ text str =
                         "Gruttere toetseboerdletters"
 
                     "Volgende WOORDLE" ->
-                        "Folgjende WURDLE"
+                        "Folgjende WURDL"
 
                     "Code is beschikbaar " ->
                         "Koade is beskikber "
@@ -2247,7 +2282,7 @@ text str =
                             other
 
                         else
-                            "AAA moet nog vertalen" ++ other
+                            other
 
 
 main : Program InitialData Model Msg
