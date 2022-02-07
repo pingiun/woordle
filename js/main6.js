@@ -17,7 +17,7 @@ function daysBetween(startDate, endDate) {
   var millisecondsPerDay = 24 * 60 * 60 * 1000;
   return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
-const start_date = new Date(2022, 1, 11);
+const start_date = new Date(2022, 1, 21);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const n = puzzle_words.length;
 const todays_word = puzzle_words[((offset % n) + n) % n];
