@@ -255,15 +255,15 @@ viewHelp model =
         otherLink =
             if model.wordSize == 5 then
                 paragraph []
-                    [ text "Er is ook "
+                    [ text "Der is ek in "
                     , newTabLink [ Font.color linkColor ] { label = text "WURDL6", url = "/woordle6" }
                     , text "!"
                     ]
 
             else
                 paragraph []
-                    [ text "Er is ook "
-                    , newTabLink [ Font.color linkColor ] { label = text "gewone WURDL", url = "/" }
+                    [ text "Der is ek in "
+                    , newTabLink [ Font.color linkColor ] { label = text "gewoane WURDL", url = "/" }
                     , text "!"
                     ]
     in
@@ -1499,7 +1499,19 @@ viewSettings model =
                     Element.none
 
                 Frisian ->
-                    Element.none
+                    if model.wordSize == 5 then
+                        paragraph [ Font.size 16 ]
+                            [ text "Hasto "
+                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                            , text " al probearre?"
+                            ]
+
+                    else
+                        paragraph [ Font.size 16 ]
+                            [ text "Hasto de "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewoane WOORDLE", url = "/" }
+                            , text " al probearre?"
+                            ]
 
                 Dutch ->
                     if model.wordSize == 5 then
@@ -1685,16 +1697,16 @@ viewEndScreen model =
                 Frisian ->
                     if model.wordSize == 5 then
                         paragraph [ Font.size 16 ]
-                            [ text "Ook al "
+                            [ text "Hasto "
                             , newTabLink [ Font.color linkColor ] { label = text "WURDL6", url = "/woordle6" }
-                            , text " geprobeerd?"
+                            , text " al probearre?"
                             ]
 
                     else
                         paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "gewone WURDL", url = "/" }
-                            , text " geprobeerd?"
+                            [ text "Hasto de "
+                            , newTabLink [ Font.color linkColor ] { label = text "gewoane WURDL", url = "/" }
+                            , text " al probearre?"
                             ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
