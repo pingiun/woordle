@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <script type="text/javascript" src="/js/app-en.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
   <title>WORDLE6 - Six letter Wordle</title>
   <meta name="description" content="Try Wordle with six letters instead of five.">
@@ -33,6 +33,9 @@
       body {
         background: rgb(21, 23, 20); color: white;
       }
+    }
+    body > div {
+      padding-bottom: env(safe-area-inset-bottom) !important;
     }
   </style>
 </head>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <script type="text/javascript" src="/js/b3fb4ebfc697cd42996bf7677eec151348ec8cf587a8e848313dda52d7322bbb-app.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
   <title>Woordle - Een dagelijks woordspelletje</title>
   <meta name="description" content="Zes beurten om het woord te gokken. Elke dag een nieuwe puzzel.">
@@ -33,6 +33,9 @@
       body {
         background: rgb(21, 23, 20); color: white;
       }
+    }
+    body > div {
+      padding-bottom: env(safe-area-inset-bottom) !important;
     }
   </style>
 </head>
