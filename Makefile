@@ -6,6 +6,7 @@ OPTIMIZE ?= --optimize
 SHELL = bash
 
 app/js/app-en.min.js: src/Main.elm
+	mkdir src-en
 	sed 's/{- English -}/English {-/' src/Main.elm > src-en/Main.elm
 	elm make $(OPTIMIZE) --output app-en.js src-en/Main.elm
 	if [[ -n "$(OPTIMIZE)" ]]; then
