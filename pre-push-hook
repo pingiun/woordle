@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /usr/bin/env bash
 
 # Disable push if latest app version wasn't exported to app folder
 
