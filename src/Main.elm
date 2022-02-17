@@ -1708,7 +1708,7 @@ viewStatitics model =
             , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
             ]
         , el [ height (px 10) ] Element.none
-        , el [ Font.bold, centerX ] (text "GOK VERDELING")
+        , el [ Font.bold, centerX ] (text "VERDELING")
         , column [ spacing 5 ]
             [ row [ Font.size 18, spacing 5 ] [ text "1", bar 1 model.statistics.guesses.g1 ]
             , row [ Font.size 18, spacing 5 ] [ text "2", bar 2 model.statistics.guesses.g2 ]
@@ -2017,7 +2017,7 @@ text str =
                     "STATISTIEK" ->
                         "STATISTICS"
 
-                    "GOK VERDELING" ->
+                    "VERDELING" ->
                         "GUESS DISTRIBUTION"
 
                     "gespeeld" ->
