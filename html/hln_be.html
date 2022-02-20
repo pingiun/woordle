@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+  <title>Woordle - Een dagelijks woordspelletje</title>
+  <meta name="description" content="Zes beurten om het woord te gokken. Elke dag een nieuwe puzzel.">
+
+  <style>
+    div[role="button"] {
+      touch-action: manipulation;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: rgb(21, 23, 20); color: white;
+      }
+    }
+    body > div {
+      padding-bottom: env(safe-area-inset-bottom) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>Deze pagina werkt alleen met javascript ingeschakeld.</noscript>
+  <div id="app"></div>
+  <script src="https://cdn-games.mychannels.world/pgsdk/pgsdk-1.2.10.min.js"></script>
+  <script type="text/javascript" src="/js/app-be.min.js"></script>
+  <script type="text/javascript" src="/js/main-be.min.js"></script>
+</body>
+</html>

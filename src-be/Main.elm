@@ -1939,7 +1939,7 @@ type Language
 language : Language
 language =
     {- The line below is replaced with in export.html such that Dutch is commented and the end of the comment ends up below -}
-    {- Flemish -}
+    Flemish {-
     Dutch
 
 
