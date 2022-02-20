@@ -20,7 +20,8 @@ function daysBetween(startDate, endDate) {
 function startWoordle() {
   const start_date = new Date(2022, 0, 7);
   const offset = Math.floor(daysBetween(start_date, new Date()));
-  const todays_word = puzzle_words[offset % puzzle_words.length];
+  const n = puzzle_words.length;
+  const todays_word = puzzle_words[((offset % n) + n) % n];
   var app = Elm.Main.init({
     node: document.getElementById('app'),
     flags: {
