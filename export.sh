@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+rm -rf app/js/*
+gmake build
+
 declare -A filenames
 
 for file in app/js/app*.js app/js/main*.js; do

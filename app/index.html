@@ -3,7 +3,6 @@
 
 <head>
   <meta charset="UTF-8" />
-  <script type="text/javascript" src="/js/98b67708c9fafbee433e5b12b12ae82a344e31a34b5430df2c4681ad69c5fe5b-app.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
   <title>Woordle - Een dagelijks woordspelletje</title>
@@ -43,6 +42,14 @@
 <body>
   <noscript>Deze pagina werkt alleen met javascript ingeschakeld.</noscript>
   <div id="app"></div>
-<script type="text/javascript" src="/js/dd8460adeec9a0efaf48712e82743ee8bf5d77147c732921777e677ecc479321-main.min.js"></script>
+  <script type="text/javascript" src="/js/93ce8028116b4e5507070ef3ab2958a8c3a04cb0dfa807b332319079b26f1e99-app.min.js"></script>
+  <script type="text/javascript" src="/js/2999c56df29adcc36ca216da16c8511275a79766bc2d37da0f2f1d1cd8516961-main.min.js"></script>
+  <script src="https://cdn-games.mychannels.world/pgsdk/pgsdk-1.2.10.min.js"></script>
+  <script>
+    PGSDK.enableDebugMode(); // For dev purpose, this will add logs from SDK to the console.
+    PGSDK.onStart(function (params) {
+      startWoordle();
+    });
+  </script>
 </body>
 </html>

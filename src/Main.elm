@@ -882,7 +882,15 @@ createShare model =
                         Dutch ->
                             ( "Woordle" ++ String.fromInt l ++ " ", 1 )
     in
-    woordle ++ String.fromInt (model.offset + extraOffset) ++ " " ++ n ++ "/6\n\n" ++ blokjes model model.board
+    -- TODO: update AD url
+    "Ik heb zojuist "
+        ++ woordle
+        ++ String.fromInt (model.offset + extraOffset)
+        ++ " gespeeld!\nMijn beurten: "
+        ++ n
+        ++ "/6\n\n"
+        ++ blokjes model model.board
+        ++ "\n\nSpeel het zelf:\nhttps://www.ad.nl/fun/puzzels"
 
 
 blokje : Model -> CharGuess -> String
@@ -1491,15 +1499,7 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
-                , case language of
-                    English ->
-                        paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ]
-
-                    Dutch ->
-                        Element.none
-                , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
-                , linkToOther
+                , paragraph [] [ text "WOORDLE is gebaseerd op het het originele Wordle en werd gemaakt door Jelle Besseling." ]
                 ]
             ]
         )
@@ -1658,7 +1658,10 @@ viewEndScreen model =
                         paragraph [ Font.size 16 ]
                             [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
                             , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                            , text " (in het Engels)!"
+                            , text " (in het Engels)! Of de "
+                            -- TODO: update link
+                            , newTabLink [ Font.color linkColor ] { label = text "Vlaamse versie", url = "https://www.ad.nl/fun/puzzels"}
+                            , text " bij HLN.be"
                             ]
 
                     English ->
