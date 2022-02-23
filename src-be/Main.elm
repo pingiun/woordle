@@ -558,7 +558,7 @@ storageSuffix model =
 
                 Dutch ->
                     ""
-                
+
                 Flemish ->
                     "-be"
 
@@ -789,10 +789,18 @@ emptyStatistics =
 
 startKeyboard : Keyboard
 startKeyboard =
-    ( List.map New (String.toList "qwertyuiop")
-    , List.map New (String.toList "asdfghjkl⌫")
-    , List.map New (String.toList "zxcvbnm↵")
-    )
+    case language of
+        Flemish ->
+            ( List.map New (String.toList "azertyuiop")
+            , List.map New (String.toList "qsdfghjkl⌫")
+            , List.map New (String.toList "wxcvbnm↵")
+            )
+
+        _ ->
+            ( List.map New (String.toList "qwertyuiop")
+            , List.map New (String.toList "asdfghjkl⌫")
+            , List.map New (String.toList "zxcvbnm↵")
+            )
 
 
 modelFromJson : D.Value -> Int -> String -> Bool -> Model
@@ -1642,16 +1650,17 @@ viewEndScreen model =
                 , case language of
                     English ->
                         Element.none
+
                     _ ->
                         paragraph [ Font.size 16 ]
                             [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
                             , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
                             , text " (in het Engels)! Of de "
+
                             -- TODO: update link
-                            , newTabLink [ Font.color linkColor ] { label = text "Vlaamse versie", url = "https://www.ad.nl/fun/puzzels"}
+                            , newTabLink [ Font.color linkColor ] { label = text "Vlaamse versie", url = "https://www.ad.nl/fun/puzzels" }
                             , text " bij HLN.be"
                             ]
-
                 , linkToOther
                 ]
             ]
