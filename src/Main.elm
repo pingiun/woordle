@@ -896,7 +896,6 @@ createShare model =
                         _ ->
                             ( "Woordle" ++ String.fromInt l ++ " ", 1 )
     in
-    -- TODO: update AD url
     "Ik heb zojuist "
         ++ woordle
         ++ String.fromInt (model.offset + extraOffset)
