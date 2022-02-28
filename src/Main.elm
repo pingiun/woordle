@@ -1602,30 +1602,6 @@ viewEndScreen model =
     let
         ( w, h ) =
             calcWinScreenWH model.window
-
-        linkToOther =
-            case language of
-                English ->
-                    paragraph [ Font.size 16 ]
-                        [ Element.text "Already done the regular "
-                        , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                        , Element.text " today?"
-                        ]
-
-                _ ->
-                    if model.wordSize == 5 then
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                            , text " geprobeerd?"
-                            ]
-
-                    else
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
-                            , text " geprobeerd?"
-                            ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1663,7 +1639,6 @@ viewEndScreen model =
                             , newTabLink [ Font.color linkColor ] { label = text "Vlaamse versie", url = "https://www.ad.nl/fun/puzzels" }
                             , text " bij HLN.be"
                             ]
-                , linkToOther
                 ]
             ]
         )
