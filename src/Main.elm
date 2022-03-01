@@ -889,7 +889,7 @@ createShare model =
                             ( "Woordle ", 202 )
 
                         Flemish ->
-                            ( "Woordle ", 1)
+                            ( "Woordle ", 1 )
 
                 l ->
                     case language of
@@ -1602,6 +1602,22 @@ viewEndScreen model =
     let
         ( w, h ) =
             calcWinScreenWH model.window
+
+        linkToOther =
+            case language of
+                Dutch ->
+                    -- TODO: update link
+                    [ Element.text " Of de "
+                    , newTabLink [ Font.color linkColor ] { label = Element.text "Vlaamse versie", url = "https://www.hln.be/fun/uitgelicht" }
+                    , Element.text " bij HLN.be"
+                    ]
+
+                _ ->
+                    -- TODO: update link
+                    [ Element.text " Of de "
+                    , newTabLink [ Font.color linkColor ] { label = Element.text "Nederlandse versie", url = "https://www.ad.nl/fun/uitgelicht" }
+                    , Element.text " bij AD.nl"
+                    ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1631,14 +1647,12 @@ viewEndScreen model =
 
                     _ ->
                         paragraph [ Font.size 16 ]
-                            [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
-                            , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
-                            , text " (in het Engels)! Of de "
-
-                            -- TODO: update link
-                            , newTabLink [ Font.color linkColor ] { label = text "Vlaamse versie", url = "https://www.ad.nl/fun/puzzels" }
-                            , text " bij HLN.be"
-                            ]
+                            ([ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
+                             , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                             , text " (in het Engels)!"
+                             ]
+                                ++ linkToOther
+                            )
                 ]
             ]
         )
