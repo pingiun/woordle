@@ -247,19 +247,19 @@ viewHelp model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowHelp False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
-                [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
+                [ el [ titleFont, centerX ] (text "INSTRUCTIES")
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
+                , paragraph [] [ text "Raad het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
                 , paragraph [] [ text "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just first))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just first))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just second))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just second))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just third))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just third))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
@@ -278,6 +278,7 @@ viewBody model =
         , viewKeyboard model
         ]
 
+titleFont = Font.family [ Font.typeface "TitleFont", Font.typeface "Open Sans", Font.sansSerif ]
 
 viewHeader : Model -> Element Msg
 viewHeader model =
@@ -288,7 +289,7 @@ viewHeader model =
         , Border.widthEach { bottom = 2, left = 0, right = 0, top = 0 }
         ]
         [ helpButton
-        , el [ centerY, centerX ] (text (titel model))
+        , el [ centerY, centerX, titleFont ] (text (titel model))
         , settingsButton
         ]
 
@@ -901,7 +902,7 @@ createShare model =
     in
     "Ik heb zojuist "
         ++ woordle
-        ++ String.fromInt (model.offset + extraOffset)
+        ++ "#" ++ String.fromInt (model.offset + extraOffset)
         ++ " gespeeld!\nMijn beurten: "
         ++ n
         ++ "/6\n\n"
@@ -1422,10 +1423,10 @@ modalPadding : Model -> Int
 modalPadding model =
     case (classifyDevice model.window).class of
         Element.Phone ->
-            20
+            10
 
         _ ->
-            60
+            50
 
 
 rowHeight : Model -> Int -> Int
@@ -1480,8 +1481,8 @@ viewSettings model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowSettings False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
-                [ el [ Font.bold, centerX ] (text "INSTELLINGEN")
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
+                [ el [ titleFont, centerX ] (text "INSTELLINGEN")
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Donker thema" ], onOffButton model (SetDarkMode (not model.useDarkMode)) model.useDarkMode ]
                 , el [ height (px 10) ] Element.none
@@ -1608,14 +1609,14 @@ viewEndScreen model =
                 Dutch ->
                     -- TODO: update link
                     [ Element.text " Of de "
-                    , newTabLink [ Font.color linkColor ] { label = Element.text "Vlaamse versie", url = "https://www.hln.be/fun/uitgelicht" }
+                    , newTabLink [ Font.color linkColor ] { label = Element.text "Vlaamse versie", url = "https://www.hln.be/fun/apps/~g781220" }
                     , Element.text " bij HLN.be"
                     ]
 
                 _ ->
                     -- TODO: update link
                     [ Element.text " Of de "
-                    , newTabLink [ Font.color linkColor ] { label = Element.text "Nederlandse versie", url = "https://www.ad.nl/fun/uitgelicht" }
+                    , newTabLink [ Font.color linkColor ] { label = Element.text "Nederlandse versie", url = "https://www.ad.nl/fun/apps/~g781219" }
                     , Element.text " bij AD.nl"
                     ]
     in
@@ -1689,7 +1690,7 @@ viewStatitics model =
                 Element.none
     in
     column [ width fill, spacing 10 ]
-        [ el [ Font.bold, centerX ] (text "STATISTIEK")
+        [ el [ titleFont, centerX ] (text "STATISTIEK")
         , row [ width fill, spacing 10 ]
             [ column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.gamesPlayed ++ "×"), el [ centerX, Font.size 14 ] <| text "gespeeld" ]
             , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt extra.winPercentage), el [ centerX, Font.size 14 ] <| text "Win %" ]
@@ -1697,7 +1698,7 @@ viewStatitics model =
             , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
             ]
         , el [ height (px 10) ] Element.none
-        , el [ Font.bold, centerX ] (text "VERDELING")
+        , el [ titleFont, centerX ] (text "VERDELING")
         , column [ spacing 5 ]
             [ row [ Font.size 18, spacing 5 ] [ text "1", bar 1 model.statistics.guesses.g1 ]
             , row [ Font.size 18, spacing 5 ] [ text "2", bar 2 model.statistics.guesses.g2 ]
