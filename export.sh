@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+rm -rf app/js/*
+gmake build
+
 declare -A filenames
 
 for file in app/js/app*.js app/js/main*.js; do
@@ -12,7 +15,7 @@ for file in app/js/app*.js app/js/main*.js; do
 done
 
 cd html
-for html in **/*.html *.html; do
+for html in *.html; do
     mkdir -p "../app/$(dirname $html)"
     cp "$html" "../app/$html"
     for basename in "${!filenames[@]}"; do
