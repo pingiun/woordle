@@ -39,7 +39,4 @@ app/js/main-en.min.js: js/main-en.js
 
 build: app/js/app-en.min.js app/js/app.min.js app/js/main.min.js app/js/main6.min.js app/js/main6-en.min.js app/js/main-en.min.js
 
-export: build
-	./export.sh
-
 .PHONY: build export

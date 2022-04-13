@@ -247,19 +247,19 @@ viewHelp model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowHelp False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Gok het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
+                , paragraph [] [ text "Raad het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
                 , paragraph [] [ text "Na elke gok zullen de kleuren van de vakjes aangeven hoe dichtbij je was." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just first))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just first))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "W"), text " zit op de juiste plek in het woord." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just second))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just second))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "U"), text " zit in het woord maar op een andere plek." ]
-                , el [ height (px (rowHeight model widthLeft)), width (px widthLeft) ] (viewBoardRow model (Just third))
+                , el [ height (px (rowHeight model widthLeft)), width fill ] (viewBoardRow model (Just third))
                 , paragraph [] [ text "De letter ", el [ Font.bold ] (text "E"), text " zit helemaal niet in het woord." ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
@@ -1398,10 +1398,10 @@ modalPadding : Model -> Int
 modalPadding model =
     case (classifyDevice model.window).class of
         Element.Phone ->
-            20
+            10
 
         _ ->
-            60
+            50
 
 
 rowHeight : Model -> Int -> Int
@@ -1451,17 +1451,31 @@ viewSettings model =
 
                 Dutch ->
                     if model.wordSize == 5 then
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                            , text " geprobeerd?"
+                        column [ spacing 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Ook al "
+                                , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                                , text " geprobeerd?"
+                                ]
+                            , paragraph [ Font.size 16 ]
+                                [ text "En nu ook "
+                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                                , text "!"
+                                ]
                             ]
 
                     else
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
-                            , text " geprobeerd?"
+                        column [ spacing 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Ook al "
+                                , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                                , text " geprobeerd?"
+                                ]
+                            , paragraph [ Font.size 16 ]
+                                [ text "En nu ook "
+                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                                , text "!"
+                                ]
                             ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
@@ -1476,7 +1490,7 @@ viewSettings model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowSettings False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, scrollbars, width fill, height fill ]
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTELLINGEN")
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Donker thema" ], onOffButton model (SetDarkMode (not model.useDarkMode)) model.useDarkMode ]
@@ -1618,17 +1632,31 @@ viewEndScreen model =
 
                 Dutch ->
                     if model.wordSize == 5 then
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                            , text " geprobeerd?"
+                        column [ spacing 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Ook al "
+                                , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                                , text " geprobeerd?"
+                                ]
+                            , paragraph [ Font.size 16 ]
+                                [ text "En nu ook "
+                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                                , text "!"
+                                ]
                             ]
 
                     else
-                        paragraph [ Font.size 16 ]
-                            [ text "Ook al "
-                            , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
-                            , text " geprobeerd?"
+                        column [ spacing 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Ook al "
+                                , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
+                                , text " geprobeerd?"
+                                ]
+                            , paragraph [ Font.size 16 ]
+                                [ text "En nu ook "
+                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                                , text "!"
+                                ]
                             ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
@@ -1646,12 +1674,12 @@ viewEndScreen model =
                 [ el [ centerX ] (text (endText model))
                 , el [ centerX ] (text "Het woord was: ")
                 , el [ centerX, Font.bold, Font.size 45 ] (Element.text (model.correctWord |> List.map Char.toUpper |> String.fromList))
-                , el [ height (px 40) ] Element.none
+                , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ]
                     [ column [ spacing 4 ] [ paragraph [ centerX, Font.center ] [ text ("Volgende " ++ titel model) ], el [ centerX, Font.family [ Font.monospace ], Font.size 28 ] (Element.text (nextWordle model)) ]
                     , button [ Background.color greenColor, Element.mouseDown [ Background.color (darken greenColor) ], padding 20, rounded 20 ] { label = text "Delen", onPress = Just Share }
                     ]
-                , el [ height (px 40) ] Element.none
+                , el [ height (px 20) ] Element.none
                 , viewStatitics model
                 , case language of
                     Dutch ->
@@ -2032,7 +2060,7 @@ text str =
                     "Max reeks" ->
                         "Max Streak"
 
-                    "Gok het " ->
+                    "Raad het " ->
                         "Try to guess the "
 
                     " in 6 keer." ->
