@@ -172,6 +172,8 @@ port share : String -> Cmd msg
 
 port makeToast : (String -> msg) -> Sub msg
 
+port sendFinished : () -> Cmd msg
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -872,7 +874,7 @@ createShare model =
                             ( "Wordle ", 0 )
 
                         Dutch ->
-                            ( "Woordle ", 202 )
+                            ( "NuWoordle ", 0 )
 
                 l ->
                     case language of
@@ -998,8 +1000,17 @@ update msg model =
 
                 _ ->
                     Cmd.none
+        
+        telemetryAction = 
+            case (model.playState, newModel.playState) of
+                    (Playing, Playing) ->
+                        Cmd.none
+                    (Playing, _) ->
+                        sendFinished ()
+                    (_) ->
+                        Cmd.none
     in
-    ( newModel, action )
+    ( newModel, Cmd.batch [action, telemetryAction] )
 
 
 updateToasts : Model -> Model
@@ -1388,7 +1399,7 @@ titel : Model -> String
 titel model =
     case model.wordSize of
         5 ->
-            "WOORDLE"
+            "NUWOORDLE"
 
         l ->
             "WOORDLE" ++ String.fromInt l
@@ -1512,7 +1523,7 @@ viewSettings model =
 
                     Dutch ->
                         Element.none
-                , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
+                , paragraph [] [ text "WOORDLE is gebaseerd op het het originele Wordle en werd gemaakt door Jelle Besseling." ]
                 , linkToOther
                 ]
             ]
@@ -1633,12 +1644,8 @@ viewEndScreen model =
                 Dutch ->
                     if model.wordSize == 5 then
                         column [ spacing 10 ]
-                            [ paragraph [ Font.size 16 ]
-                                [ text "Ook al "
-                                , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
-                                , text " geprobeerd?"
-                                ]
-                            , paragraph [ Font.size 16 ]
+                            [ 
+                            paragraph [ Font.size 16 ]
                                 [ text "En nu ook "
                                 , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
                                 , text "!"

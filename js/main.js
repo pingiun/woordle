@@ -17,7 +17,7 @@ function daysBetween(startDate, endDate) {
   var millisecondsPerDay = 24 * 60 * 60 * 1000;
   return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
-const start_date = new Date(2022, 0, 7);
+const start_date = new Date(2022, 4, 10);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const todays_word = puzzle_words[offset % puzzle_words.length];
 var app = Elm.Main.init({
@@ -55,4 +55,7 @@ app.ports.share.subscribe(function (sharestring) {
   } catch {
     app.ports.makeToast.send("Kon niet delen");
   }
+});
+app.ports.sendFinished.subscribe(function () {
+  fetch('/finished');
 });
