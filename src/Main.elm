@@ -1508,7 +1508,7 @@ viewSettings model =
                 , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
                 , case language of
                     English ->
-                        paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.powerlanguage.co.uk/wordle/", label = Element.text "WORDLE by Josh Wardle" } ]
+                        paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.nytimes.com/games/wordle/index.html", label = Element.text "WORDLE by Josh Wardle" } ]
 
                     Dutch ->
                         Element.none
@@ -1626,7 +1626,7 @@ viewEndScreen model =
                 English ->
                     paragraph [ Font.size 16 ]
                         [ Element.text "Already done the regular "
-                        , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                        , newTabLink [ Font.color linkColor ] { label = Element.text "WORDLE", url = "https://www.nytimes.com/games/wordle/index.html" }
                         , Element.text " today?"
                         ]
 
@@ -1685,7 +1685,7 @@ viewEndScreen model =
                     Dutch ->
                         paragraph [ Font.size 16 ]
                             [ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
-                            , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                            , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.nytimes.com/games/wordle/index.html" }
                             , text " (in het Engels)!"
                             ]
 
