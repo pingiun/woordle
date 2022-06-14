@@ -1649,7 +1649,7 @@ viewEndScreen model =
                     _ ->
                         paragraph [ Font.size 16 ]
                             ([ text ("Kan je niet wachten op de volgende " ++ titel model ++ "? Probeer ook de ")
-                             , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.powerlanguage.co.uk/wordle/" }
+                             , newTabLink [ Font.color linkColor ] { label = text "originele WORDLE", url = "https://www.nytimes.com/games/wordle/index.html" }
                              , text " (in het Engels)!"
                              ]
                                 ++ linkToOther
