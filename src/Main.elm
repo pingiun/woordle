@@ -874,7 +874,7 @@ createShare model =
                             ( "Wordle ", 0 )
 
                         Dutch ->
-                            ( "NuWoordle ", 0 )
+                            ( "Woordle ", 0 )
 
                 l ->
                     case language of
@@ -1399,7 +1399,7 @@ titel : Model -> String
 titel model =
     case model.wordSize of
         5 ->
-            "NUWOORDLE"
+            "WOORDLE"
 
         l ->
             "WOORDLE" ++ String.fromInt l
