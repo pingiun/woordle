@@ -1497,11 +1497,11 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Hoog contrast vakjes" ], onOffButton model (SetContrastMode (not model.useContrastMode)) model.useContrastMode ]
+                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Hoger contrast vakjes" ], onOffButton model (SetContrastMode (not model.useContrastMode)) model.useContrastMode ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Grotere toetsenbord letters" ], onOffButton model (SetLargeKeyboard (not model.useLargeKeyboard)) model.useLargeKeyboard ]
+                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Grotere toetsenbordletters" ], onOffButton model (SetLargeKeyboard (not model.useLargeKeyboard)) model.useLargeKeyboard ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
