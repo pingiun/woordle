@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+<script>
+const statistics = JSON.parse(localStorage.getItem("statistics"));
+window.postMessage(statistics);
+</script>
+</body>
+</html>
