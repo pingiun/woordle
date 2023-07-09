@@ -40,11 +40,13 @@ import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
 import Html
+import Html.Attributes
 import Json.Decode as D
 import Json.Encode as E
 import Set exposing (Set)
 import Task exposing (perform)
 import Time exposing (Month(..), Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
+import Element exposing (noStaticStyleSheet)
 
 
 type alias Model =
@@ -175,15 +177,14 @@ port makeToast : (String -> msg) -> Sub msg
 
 view : Model -> Html.Html Msg
 view model =
-    Element.layout
+    Element.layoutWith { options = [noStaticStyleSheet] }
         [ Background.color (pageBackground model)
         , Font.color (textColor model)
-        , height (px model.window.height)
-        , width (px model.window.width)
         , inFront (maybeViewHelp model)
         , inFront (maybeViewSettings model)
         , inFront (maybeViewEndScreen model)
         , inFront (viewToasts model)
+        , flexGrowClass
         ]
         (viewBody model)
 
@@ -272,9 +273,10 @@ viewHelp model =
 
 viewBody : Model -> Element Msg
 viewBody model =
-    column [ centerX, height fill, width (fill |> maximum 600), spacing 20 ]
+    column [ centerX, width (fill |> maximum 600), spacing 20, flexGrowClass, spaceBetweenClass ]
         [ viewHeader model
         , viewBoard model
+        , row [adDiv "107", flexGrowClass, width fill] [] -- spacer
         , viewKeyboard model
         ]
 
@@ -394,7 +396,7 @@ viewKeyboard model =
         maxHeight =
             0.3 * toFloat model.window.height |> min 260 |> round
     in
-    column [ width fill, height (fill |> maximum maxHeight), alignBottom, spacing 10, paddingXY 5 5 ]
+    column [ width fill, height (fill |> maximum maxHeight), spacing 10, paddingXY 5 5 ]
         [ row [ width fill, height fill, spacing 5, centerX ] (first |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ] (second |> List.map (viewKey model))
         , row [ width fill, height fill, spacing 5, centerX ]
@@ -1457,11 +1459,11 @@ viewSettings model =
                                 , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
                                 , text " geprobeerd?"
                                 ]
-                            , paragraph [ Font.size 16 ]
-                                [ text "En nu ook "
-                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
-                                , text "!"
-                                ]
+                            -- , paragraph [ Font.size 16 ]
+                            --     [ text "En nu ook "
+                            --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                            --     , text "!"
+                            --     ]
                             ]
 
                     else
@@ -1471,11 +1473,11 @@ viewSettings model =
                                 , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                                 , text " geprobeerd?"
                                 ]
-                            , paragraph [ Font.size 16 ]
-                                [ text "En nu ook "
-                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
-                                , text "!"
-                                ]
+                            -- , paragraph [ Font.size 16 ]
+                            --     [ text "En nu ook "
+                            --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                            --     , text "!"
+                            --     ]
                             ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
@@ -1638,11 +1640,11 @@ viewEndScreen model =
                                 , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
                                 , text " geprobeerd?"
                                 ]
-                            , paragraph [ Font.size 16 ]
-                                [ text "En nu ook "
-                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
-                                , text "!"
-                                ]
+                            -- , paragraph [ Font.size 16 ]
+                            --     [ text "En nu ook "
+                            --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                            --     , text "!"
+                            --     ]
                             ]
 
                     else
@@ -1652,11 +1654,11 @@ viewEndScreen model =
                                 , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                                 , text " geprobeerd?"
                                 ]
-                            , paragraph [ Font.size 16 ]
-                                [ text "En nu ook "
-                                , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
-                                , text "!"
-                                ]
+                            -- , paragraph [ Font.size 16 ]
+                            --     [ text "En nu ook "
+                            --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
+                            --     , text "!"
+                            --     ]
                             ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
@@ -2109,6 +2111,18 @@ text str =
                         else
                             other
 
+-- Style classes
+
+flexGrowClass : Element.Attribute msg
+flexGrowClass = Element.htmlAttribute (Html.Attributes.class "flex-grow")
+
+spaceBetweenClass: Element.Attribute msg
+spaceBetweenClass = Element.htmlAttribute (Html.Attributes.class "space-between")
+
+
+adDiv : String -> Element.Attribute msg
+adDiv nr =
+    Element.htmlAttribute (Html.Attributes.id ("ezoic-pub-ad-placeholder-" ++ nr))
 
 main : Program InitialData Model Msg
 main =
