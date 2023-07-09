@@ -22,3 +22,4 @@ for html in *.html **/*.html; do
         sed -i '' "s;${basename};${filenames[$basename]};" "../app/$html"
     done
 done
+cp styles.css ../app/styles.css
