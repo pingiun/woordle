@@ -276,7 +276,7 @@ viewBody model =
     column [ centerX, width (fill |> maximum 600), spacing 20, flexGrowClass, spaceBetweenClass ]
         [ viewHeader model
         , viewBoard model
-        , row [adDiv "107", breakoutClass, flexGrowClass, width fill] [] -- spacer
+        , row [adDiv "107", flexGrowClass, width fill] [] -- spacer
         , viewKeyboard model
         ]
 
@@ -2119,8 +2119,6 @@ flexGrowClass = Element.htmlAttribute (Html.Attributes.class "flex-grow")
 spaceBetweenClass: Element.Attribute msg
 spaceBetweenClass = Element.htmlAttribute (Html.Attributes.class "space-between")
 
-breakoutClass: Element.Attribute msg
-breakoutClass = Element.htmlAttribute (Html.Attributes.class "breakout")
 
 adDiv : String -> Element.Attribute msg
 adDiv nr =
