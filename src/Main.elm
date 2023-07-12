@@ -276,7 +276,7 @@ viewBody model =
     column [ centerX, width (fill |> maximum 600), spacing 20, flexGrowClass, spaceBetweenClass ]
         [ viewHeader model
         , viewBoard model
-        , row [adDiv "107", flexGrowClass, width fill] [] -- spacer
+        , row [adDiv "107", flexGrowClass, centerX, width fill] [] -- spacer
         , viewKeyboard model
         ]
 
