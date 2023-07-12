@@ -178,7 +178,7 @@ body {
 }
 
 .ui > .fr.nb {
-  position: fixed;
+  /* position: fixed; */
   z-index: 20;
 }
 

@@ -14,6 +14,15 @@ for file in app/js/app*.js app/js/main*.js; do
     fi
 done
 
+for file in html/css/*.css; do
+    checksum=$(b3sum --no-names -- "$file")
+    basename=$(basename "$file")
+    if [[ "$checksum" != "*$basename*" ]]; then
+        cp "$file" "app/css/${checksum}-${basename}"
+        filenames["$basename"]="${checksum}-${basename}"
+    fi
+done
+
 cd html
 for html in *.html **/*.html; do
     mkdir -p "../app/$(dirname $html)"
@@ -22,4 +31,3 @@ for html in *.html **/*.html; do
         sed -i '' "s;${basename};${filenames[$basename]};" "../app/$html"
     done
 done
-cp styles.css ../app/styles.css
