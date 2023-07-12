@@ -29,6 +29,10 @@ body > div {
   justify-content: space-between;
 }
 
+.justify-content-center {
+  justify-content: center;
+}
+
 .columns {
   height: 100%;
   display: flex;
@@ -724,7 +728,7 @@ body {
 }
 
 .s.r.cl {
-  justify-content: flex-start;
+  /* justify-content: flex-start; */
 }
 
 .s.r.ccx {
