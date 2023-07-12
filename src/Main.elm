@@ -1673,7 +1673,7 @@ viewEndScreen model =
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just DismissEndScreen, label = text "✕" }))
             ]
             [ column [ centerX, centerY, spacing 10, scrollbars, height fill ]
-                [ el [ adDiv "108", flexGrowClass, justifyContentCenterClass ] Element.none
+                [ el [ adDiv "108", width fill, flexGrowClass, justifyContentCenterClass ] Element.none
                 , el [ centerX ] (text (endText model))
                 , el [ centerX ] (text "Het woord was: ")
                 , el [ centerX, Font.bold, Font.size 45 ] (Element.text (model.correctWord |> List.map Char.toUpper |> String.fromList))
