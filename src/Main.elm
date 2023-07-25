@@ -1516,6 +1516,9 @@ viewSettings model =
                         Element.none
                 , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
+                , el [ height (px 10) ] Element.none
+                , paragraph [Font.size 16] [ text "WOORDLE is een spelletje van pingiun solutions"]
+                , paragraph [Font.size 16] [ text "BTW Nr: NL004111081B24"]
                 ]
             ]
         )
