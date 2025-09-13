@@ -6,7 +6,6 @@ import Element
     exposing
         ( DeviceClass(..)
         , Element
-        , alignBottom
         , alignLeft
         , alignRight
         , centerX
@@ -20,6 +19,7 @@ import Element
         , inFront
         , maximum
         , newTabLink
+        , noStaticStyleSheet
         , padding
         , paddingEach
         , paddingXY
@@ -46,7 +46,6 @@ import Json.Encode as E
 import Set exposing (Set)
 import Task exposing (perform)
 import Time exposing (Month(..), Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
-import Element exposing (noStaticStyleSheet)
 
 
 type alias Model =
@@ -175,9 +174,12 @@ port share : String -> Cmd msg
 port makeToast : (String -> msg) -> Sub msg
 
 
+port finishEvent : String -> Cmd msg
+
+
 view : Model -> Html.Html Msg
 view model =
-    Element.layoutWith { options = [noStaticStyleSheet] }
+    Element.layoutWith { options = [ noStaticStyleSheet ] }
         [ Background.color (pageBackground model)
         , Font.color (textColor model)
         , inFront (maybeViewHelp model)
@@ -276,7 +278,7 @@ viewBody model =
     column [ centerX, width (fill |> maximum 600), spacing 20, flexGrowClass, spaceBetweenClass ]
         [ viewHeader model
         , viewBoard model
-        , row [adDiv "107", flexGrowClass, justifyContentCenterClass, centerX, width fill] [] -- spacer
+        , row [ adDiv "107", flexGrowClass, justifyContentCenterClass, centerX, width fill ] [] -- spacer
         , viewKeyboard model
         ]
 
@@ -1000,8 +1002,19 @@ update msg model =
 
                 _ ->
                     Cmd.none
+
+        actions =
+            action
+                :: (case ( model.playState, newModel.playState ) of
+                        ( Playing, Won ) ->
+                            [(finishEvent "WON")]
+                        ( Playing, Lost ) ->
+                            [(finishEvent "LOST")]
+                        _ ->
+                            []
+                   )
     in
-    ( newModel, action )
+    ( newModel, Cmd.batch actions )
 
 
 updateToasts : Model -> Model
@@ -1459,6 +1472,7 @@ viewSettings model =
                                 , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
                                 , text " geprobeerd?"
                                 ]
+
                             -- , paragraph [ Font.size 16 ]
                             --     [ text "En nu ook "
                             --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
@@ -1473,6 +1487,7 @@ viewSettings model =
                                 , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                                 , text " geprobeerd?"
                                 ]
+
                             -- , paragraph [ Font.size 16 ]
                             --     [ text "En nu ook "
                             --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
@@ -1517,8 +1532,8 @@ viewSettings model =
                 , paragraph [] [ text "Code is beschikbaar ", newTabLink [ Font.color linkColor ] { url = "https://github.com/pingiun/woordle/", label = text "op GitHub" } ]
                 , linkToOther
                 , el [ height (px 10) ] Element.none
-                , paragraph [Font.size 16] [ text "WOORDLE is een spelletje van pingiun solutions"]
-                , paragraph [Font.size 16] [ text "BTW Nr: NL004111081B24"]
+                , paragraph [ Font.size 16 ] [ text "WOORDLE is een spelletje van pingiun solutions" ]
+                , paragraph [ Font.size 16 ] [ text "BTW Nr: NL004111081B24" ]
                 ]
             ]
         )
@@ -1643,6 +1658,7 @@ viewEndScreen model =
                                 , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
                                 , text " geprobeerd?"
                                 ]
+
                             -- , paragraph [ Font.size 16 ]
                             --     [ text "En nu ook "
                             --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
@@ -1657,6 +1673,7 @@ viewEndScreen model =
                                 , newTabLink [ Font.color linkColor ] { label = text "gewone WOORDLE", url = "/" }
                                 , text " geprobeerd?"
                                 ]
+
                             -- , paragraph [ Font.size 16 ]
                             --     [ text "En nu ook "
                             --     , newTabLink [ Font.color linkColor ] { label = text "Vlaamse WOORDLE bij HLN", url = "https://www.hln.be/fun/apps/woordle~g781220" }
@@ -2115,21 +2132,30 @@ text str =
                         else
                             other
 
+
+
 -- Style classes
 
+
 flexGrowClass : Element.Attribute msg
-flexGrowClass = Element.htmlAttribute (Html.Attributes.class "flex-grow")
+flexGrowClass =
+    Element.htmlAttribute (Html.Attributes.class "flex-grow")
 
-spaceBetweenClass: Element.Attribute msg
-spaceBetweenClass = Element.htmlAttribute (Html.Attributes.class "space-between")
 
-justifyContentCenterClass: Element.Attribute msg
-justifyContentCenterClass = Element.htmlAttribute (Html.Attributes.class "justify-content-center")
+spaceBetweenClass : Element.Attribute msg
+spaceBetweenClass =
+    Element.htmlAttribute (Html.Attributes.class "space-between")
+
+
+justifyContentCenterClass : Element.Attribute msg
+justifyContentCenterClass =
+    Element.htmlAttribute (Html.Attributes.class "justify-content-center")
 
 
 adDiv : String -> Element.Attribute msg
 adDiv nr =
     Element.htmlAttribute (Html.Attributes.id ("ezoic-pub-ad-placeholder-" ++ nr))
+
 
 main : Program InitialData Model Msg
 main =

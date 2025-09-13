@@ -1,4 +1,5 @@
 
+window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
 function loadStorage() {
   const gameState = JSON.parse(localStorage.getItem("gameState6"));
   const statistics = JSON.parse(localStorage.getItem("statistics6"));
@@ -37,6 +38,9 @@ app.ports.save.subscribe(function (value) {
     localStorage.setItem(key, JSON.stringify(val));
   }
 });
+app.ports.finishEvent.subscribe(function (value) {
+  plausible("finish-" + value);
+});
 app.ports.share.subscribe(function (sharestring) {
   try {
     if (/Mobi/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent) && navigator.share) {
@@ -51,6 +55,7 @@ app.ports.share.subscribe(function (sharestring) {
       document.execCommand('copy');
       document.body.removeChild(t)
       app.ports.makeToast.send("Score gekopieerd");
+      plausible("share");
     }
   } catch {
     app.ports.makeToast.send("Kon niet delen");

@@ -1,4 +1,5 @@
 
+window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
 function loadStorage() {
     const gameState = JSON.parse(localStorage.getItem("gameState-en"));
     const statistics = JSON.parse(localStorage.getItem("statistics-en"));
@@ -37,6 +38,9 @@ function loadStorage() {
       localStorage.setItem(key, JSON.stringify(val));
     }
   });
+  app.ports.finishEvent.subscribe(function (value) {
+    plausible("finish-" + value);
+  });
   app.ports.share.subscribe(function (sharestring) {
     try {
       if (/Mobi/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent) && navigator.share) {
@@ -51,6 +55,7 @@ function loadStorage() {
         document.execCommand('copy');
         document.body.removeChild(t)
         app.ports.makeToast.send("Copied to clipboard");
+        plausible("share");
       }
     } catch {
       app.ports.makeToast.send("Can't share");
