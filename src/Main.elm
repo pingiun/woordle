@@ -1477,7 +1477,13 @@ viewSettings model =
                             ]
 
                     else
-                        Element.none
+                        column [ spacing 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Ook al "
+                                , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                                , text " geprobeerd?"
+                                ]
+                            ]
     in
     el [ Background.color darkened_bg, centerX, centerY, width fill, height fill ]
         (column
@@ -1644,19 +1650,25 @@ viewEndScreen model =
                             ]
 
                     else
-                        Element.none
+                        column [ spacing 10, paddingXY 0 10 ]
+                            [ paragraph [ Font.size 16 ]
+                                [ text "Door naar "
+                                , newTabLink [ Font.color linkColor ] { label = text "WOORDLE6", url = "/woordle6" }
+                                ]
+                            ]
 
         newLinkToOther =
             if model.wordSize == 5 then
                 newTabLink [ Background.color (pageBackground model), Border.rounded 10, padding 20, width fill ]
-                { label =
-                    paragraph [ Font.size 16 ]
-                        [ text "Door naar "
-                        , el [ Font.color linkColor ] (text "WOORDLE6")
-                        , text " met 6 letters"
-                        ]
-                , url = "/woordle6"
-                }
+                    { label =
+                        paragraph [ Font.size 16 ]
+                            [ text "Door naar "
+                            , el [ Font.color linkColor ] (text "WOORDLE6")
+                            , text " met 6 letters"
+                            ]
+                    , url = "/woordle6"
+                    }
+
             else
                 Element.none
     in
