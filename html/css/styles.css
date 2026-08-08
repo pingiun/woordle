@@ -55,6 +55,15 @@ body > div {
   justify-content: center;
 }
 
+/* Playability first: when there is no room for the game (~520px) plus a
+   300px ad on each side, drop the side ad columns entirely. Ezoic does not
+   fill hidden placeholders, so no ads are requested for them. */
+@media (max-width: 1200px) {
+  .columns > .self-center {
+    display: none;
+  }
+}
+
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   .s.r > .s {
     flex-basis: auto !important;
