@@ -67,6 +67,7 @@ type alias Model =
     , offset : Int
     , showHelp : Bool
     , showSettings : Bool
+    , showStats : Bool
     , useDarkMode : Bool
     , useContrastMode : Bool
     , useLargeKeyboard : Bool
@@ -131,6 +132,7 @@ type Msg
     | DismissEndScreen
     | ShowHelp Bool
     | ShowSettings Bool
+    | ShowStats Bool
     | SetDarkMode Bool
     | SetContrastMode Bool
     | SetLargeKeyboard Bool
@@ -187,6 +189,7 @@ view model =
         , Font.color (textColor model)
         , inFront (maybeViewHelp model)
         , inFront (maybeViewSettings model)
+        , inFront (maybeViewStats model)
         , inFront (maybeViewEndScreen model)
         , inFront (viewToasts model)
         , flexGrowClass
@@ -305,7 +308,7 @@ viewHeader model =
         ]
         [ helpButton
         , el [ centerY, centerX ] (text (titel model))
-        , settingsButton
+        , row [ spacing 10 ] [ statsButton, settingsButton ]
         ]
 
 
@@ -319,6 +322,20 @@ helpButton =
                 , Svg.path [ SvgA.d "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" ] []
                 , Svg.line [ SvgA.x1 "12", SvgA.y1 "17", SvgA.x2 "12.01", SvgA.y2 "17" ] []
                 ]
+        }
+
+
+statsButton : Element Msg
+statsButton =
+    button [ alignLeft ]
+        { onPress = Just (ShowStats True)
+        , label =
+            headerIcon
+                (Svg.circle [ SvgA.cx "12", SvgA.cy "12", SvgA.r "10" ] []
+                    :: List.map
+                        (\( x, y ) -> Svg.line [ SvgA.x1 x, SvgA.y1 "16", SvgA.x2 x, SvgA.y2 y ] [])
+                        [ ( "8", "13" ), ( "12", "8" ), ( "16", "11" ) ]
+                )
         }
 
 
@@ -560,7 +577,12 @@ guessesToJson guess =
 
 extraStats : Statistics -> { winPercentage : Int, averageGuesses : Int }
 extraStats stats =
-    { winPercentage = (toFloat stats.gamesWon / toFloat stats.gamesPlayed) * 100 |> round
+    { winPercentage =
+        if stats.gamesPlayed == 0 then
+            0
+
+        else
+            (toFloat stats.gamesWon / toFloat stats.gamesPlayed) * 100 |> round
     , averageGuesses = toFloat (stats.guesses.g1 + stats.guesses.g2 + stats.guesses.g3 + stats.guesses.g4 + stats.guesses.g5 + stats.guesses.g6) / 6 |> round
     }
 
@@ -781,6 +803,7 @@ modelDecoder wordSize todaysWord =
             , offset = 0
             , showHelp = False
             , showSettings = False
+            , showStats = False
             , useDarkMode = uiSettings.darkTheme |> Maybe.withDefault False
             , useContrastMode = uiSettings.colorBlindTheme |> Maybe.withDefault False
             , useLargeKeyboard = uiSettings.largeKeyboard |> Maybe.withDefault False
@@ -846,6 +869,7 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             , offset = 0
             , showHelp = True
             , showSettings = False
+            , showStats = False
             , useDarkMode = startDarkMode
             , useContrastMode = False
             , useLargeKeyboard = False
@@ -1000,6 +1024,16 @@ update msg model =
 
                 ShowSettings x ->
                     { model | showSettings = x }
+
+                ShowStats True ->
+                    if model.playState == Playing then
+                        { model | showStats = True }
+
+                    else
+                        { model | showEndScreen = True }
+
+                ShowStats False ->
+                    { model | showStats = False }
 
                 SetDarkMode x ->
                     { model | useDarkMode = x }
@@ -1576,6 +1610,39 @@ viewToasts model =
                     content
             )
             model.toasts
+
+
+maybeViewStats : Model -> Element Msg
+maybeViewStats model =
+    if model.showStats then
+        viewStats model
+
+    else
+        Element.none
+
+
+viewStats : Model -> Element Msg
+viewStats model =
+    let
+        ( w, h ) =
+            calcWinScreenWH model.window
+    in
+    el [ Background.color darkened_bg, onClick (ShowStats False), centerX, centerY, width fill, height fill ]
+        (column
+            [ Background.color (pageBackground model)
+            , width (px w)
+            , height (px h)
+            , centerX
+            , centerY
+            , padding (modalPadding model)
+            , Border.rounded 10
+            , onClick None
+            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowStats False), label = text "✕" }))
+            ]
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, allowShrink, width fill, height fill ]
+                [ viewStatitics model ]
+            ]
+        )
 
 
 maybeViewEndScreen : Model -> Element Msg
