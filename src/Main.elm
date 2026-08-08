@@ -45,6 +45,8 @@ import Html.Attributes
 import Json.Decode as D
 import Json.Encode as E
 import Set exposing (Set)
+import Svg
+import Svg.Attributes as SvgA
 import Task exposing (perform)
 import Time exposing (Month(..), Posix, Zone, every, here, millisToPosix, posixToMillis, utc)
 
@@ -300,30 +302,48 @@ viewHeader model =
 
 helpButton : Element Msg
 helpButton =
-    button
-        [ alignLeft
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, width (px 15) ] (text "?")))
-        ]
-        { onPress = Just (ShowHelp True), label = Element.none }
+    button [ alignLeft ]
+        { onPress = Just (ShowHelp True)
+        , label =
+            headerIcon
+                [ Svg.circle [ SvgA.cx "12", SvgA.cy "12", SvgA.r "10" ] []
+                , Svg.path [ SvgA.d "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" ] []
+                , Svg.line [ SvgA.x1 "12", SvgA.y1 "17", SvgA.x2 "12.01", SvgA.y2 "17" ] []
+                ]
+        }
 
 
 settingsButton : Element Msg
 settingsButton =
-    button
-        [ alignLeft
-        , padding 10
-        , Border.width 2
-        , rounded 100
-        , width (px 30)
-        , height (px 30)
-        , inFront (el [ width (px 30), height (px 30) ] (el [ centerX, centerY, paddingEach { bottom = 10, left = 0, top = 0, right = 3 } ] (text "...")))
-        ]
-        { onPress = Just (ShowSettings True), label = Element.none }
+    button [ alignLeft ]
+        { onPress = Just (ShowSettings True)
+        , label =
+            headerIcon
+                (Svg.circle [ SvgA.cx "12", SvgA.cy "12", SvgA.r "10" ] []
+                    :: List.map
+                        (\x -> Svg.circle [ SvgA.cx x, SvgA.cy "12", SvgA.r "1.4", SvgA.fill "currentColor", SvgA.stroke "none" ] [])
+                        [ "7", "12", "17" ]
+                )
+        }
+
+
+headerIcon : List (Svg.Svg msg) -> Element msg
+headerIcon shapes =
+    el [ width (px 30), height (px 30) ]
+        (Element.html
+            (Svg.svg
+                [ SvgA.viewBox "0 0 24 24"
+                , SvgA.width "30"
+                , SvgA.height "30"
+                , SvgA.fill "none"
+                , SvgA.stroke "currentColor"
+                , SvgA.strokeWidth "1.6"
+                , SvgA.strokeLinecap "round"
+                , SvgA.strokeLinejoin "round"
+                ]
+                shapes
+            )
+        )
 
 
 viewBoard : Model -> Element msg
