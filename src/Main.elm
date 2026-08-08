@@ -229,6 +229,15 @@ exampleWords model =
             )
 
 
+{-| Flex children default to min-height min-content, which stops a
+scrollable column from shrinking below its content, so it overflows the
+modal instead of scrolling.
+-}
+allowShrink : Element.Attribute msg
+allowShrink =
+    Element.htmlAttribute (Html.Attributes.style "min-height" "0")
+
+
 viewHelp : Model -> Element Msg
 viewHelp model =
     let
@@ -253,7 +262,7 @@ viewHelp model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowHelp False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, allowShrink, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTRUCTIES")
                 , el [ height (px 10) ] Element.none
                 , paragraph [] [ text "Raad het ", el [ Font.bold ] (text (titel model)), text " in 6 keer." ]
@@ -1517,7 +1526,7 @@ viewSettings model =
             , onClick None
             , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just (ShowSettings False), label = text "✕" }))
             ]
-            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, width fill, height fill ]
+            [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, allowShrink, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTELLINGEN")
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Donker thema" ], onOffButton model (SetDarkMode (not model.useDarkMode)) model.useDarkMode ]
