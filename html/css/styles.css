@@ -1471,3 +1471,11 @@ body {
 .v-frac-off {
   font-feature-settings: "frac" 0;
 }
+
+/* An inserted end-screen ad must take real layout space: clear the close
+   button above it, and add bottom clearance because native card creatives
+   paint ~30px below their reported frame. */
+#ezoic-pub-ad-placeholder-108 > div {
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
