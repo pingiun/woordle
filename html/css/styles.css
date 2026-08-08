@@ -44,6 +44,17 @@ body > div {
   align-self: center;
 }
 
+/* Give both ad columns equal flexible width, so the game stays
+   horizontally centered when only one side shows an ad. */
+.columns > .self-center {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   .s.r > .s {
     flex-basis: auto !important;
