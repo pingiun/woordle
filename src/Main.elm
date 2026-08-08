@@ -1748,7 +1748,9 @@ viewStatitics model =
             (calcWinScreenWH model.window |> Tuple.first) - (2 * modalPadding model) - 25
 
         maxGuesses =
-            List.maximum [ model.statistics.guesses.g1, model.statistics.guesses.g2, model.statistics.guesses.g3, model.statistics.guesses.g4, model.statistics.guesses.g5, model.statistics.guesses.g6 ] |> Maybe.withDefault 1
+            List.maximum [ model.statistics.guesses.g1, model.statistics.guesses.g2, model.statistics.guesses.g3, model.statistics.guesses.g4, model.statistics.guesses.g5, model.statistics.guesses.g6, model.statistics.guesses.fail ]
+                |> Maybe.withDefault 1
+                |> max 1
 
         bar i guesses =
             let
