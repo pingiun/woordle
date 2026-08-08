@@ -1,3 +1,10 @@
+import puzzleWordsRaw from "../../data/puzzle-words-en?raw";
+import allWordsRaw from "../../data/all-words-en?raw";
+import { Elm } from "../../src-en/Main.elm";
+
+const puzzle_words = puzzleWordsRaw.trim().split("\n");
+const all_words = allWordsRaw.trim().split("\n");
+
 
 window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
 function loadStorage() {

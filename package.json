@@ -1,6 +1,15 @@
 {
-  "dependencies": {
+  "type": "module",
+  "scripts": {
+    "gen:en": "node scripts/gen-en.js",
+    "dev": "npm run gen:en && vite",
+    "build": "npm run gen:en && vite build",
+    "preview": "npm run build && vite preview"
+  },
+  "devDependencies": {
+    "elm": "0.19.1-6",
     "elm-format": "^0.8.5",
-    "uglify-js": "^3.14.5"
+    "vite": "^8.2.1",
+    "vite-plugin-elm": "^3.0.1"
   }
 }

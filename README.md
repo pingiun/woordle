@@ -7,31 +7,24 @@ Het is [Wordle] maar dan Nederlands!
 ## Hoe draai ik dit?
 
 Alle interactiecode is geschreven in [Elm], een functionele programmeertaal die compileert naar ECMAScript (Javascript).
-Om de Elm compilatie juist te laten verlopen heb ik een Makefile gemaakt die bedoeld is om te draaien met een GNU compatible make.
+De site wordt gebouwd met [Vite]; de Elm compiler wordt via npm geïnstalleerd, dus je hebt alleen Node.js (≥ 20.11) nodig:
 
-De programma's die je nodig hebt zijn (en commando's voor macOS):
+```sh
+npm install
+npm run dev      # dev server met live reload op http://localhost:5173
+npm run build    # productie-build naar dist/
+npm run preview  # productie-build lokaal bekijken
+```
 
-- make (`brew install make`, gebruik commando `gmake`)
-- bash v4+ (`brew install bash`)
-- jq (`brew install jq`)
-- b3sum (`brew install b3sum`)
-- fswatch (`brew install fswatch`, alleen nodig voor `./preview.sh`)
-- python3 (`brew install python3`, alleen nodig voor `./preview.sh`)
-- elm ([installatie instructies op de Elm site][elm-install])
-- npm voor uglifyjs en elm-format (`brew install nodejs`)
-- uglifyjs (`npm install`)
+De Engelse variant van de Elm-app wordt gegenereerd door `scripts/gen-en.js` (draait automatisch voor `dev` en `build`):
+die zet de `{- English -}`-marker in `src/Main.elm` om en schrijft het resultaat naar `src-en/Main.elm`.
+Pas je `src/Main.elm` aan terwijl de dev server draait, herstart die dan (of draai `npm run gen:en`) om ook de Engelse pagina's bij te werken.
 
-Dan kan je de site lokaal zien door `./preview.sh` uit te voeren, deze exporteert de site automatisch opnieuw bij veranderingen.
-De site zal beschikbaar zijn op http://localhost:8000
-
-Als je klaar bent om de site te publiceren kan je `make export` draaien, en zal de `app` map de productiecode bevatten.
-Ik publiceer de website zelf via [Cloudflare Pages][pages], dit is de reden waarom ik de `app` map commit en push naar GitHub.
-Om te zorgen dat er geen oude of development versie op pages komt te staan gebruik ik de `pre-push-hook`, deze kan je in git
-installeren met `mv pre-push-hook .git/hooks/pre-push-hook`.
+De site wordt gepubliceerd via [Netlify], die draait `npm run build` en publiceert de `dist/` map (zie `netlify.toml`).
 
 [Elm]: https://elm-lang.org
-[elm-install]: https://guide.elm-lang.org/install/elm.html
-[pages]: https://pages.cloudflare.com
+[Vite]: https://vite.dev
+[Netlify]: https://www.netlify.com
 
 
 ## In het nieuws

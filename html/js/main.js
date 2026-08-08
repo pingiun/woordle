@@ -1,8 +1,15 @@
+import puzzleWordsRaw from "../../data/puzzle-words?raw";
+import allWordsRaw from "../../data/all-words?raw";
+import { Elm } from "../../src/Main.elm";
+
+const puzzle_words = puzzleWordsRaw.trim().split("\n");
+const all_words = allWordsRaw.trim().split("\n");
+
 
 window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
 function loadStorage() {
-  const gameState = JSON.parse(localStorage.getItem("gameState6"));
-  const statistics = JSON.parse(localStorage.getItem("statistics6"));
+  const gameState = JSON.parse(localStorage.getItem("gameState"));
+  const statistics = JSON.parse(localStorage.getItem("statistics"));
   const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
   const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
   const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
@@ -18,7 +25,7 @@ function daysBetween(startDate, endDate) {
   var millisecondsPerDay = 24 * 60 * 60 * 1000;
   return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
-const start_date = new Date(2022, 0, 10);
+const start_date = new Date(2022, 0, 7);
 const offset = Math.floor(daysBetween(start_date, new Date()));
 const todays_word = puzzle_words[offset % puzzle_words.length];
 var app = Elm.Main.init({
@@ -29,7 +36,7 @@ var app = Elm.Main.init({
     allWords: all_words,
     todaysWord: todays_word,
     offset: offset,
-    wordSize: 6,
+    wordSize: 5,
     startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 });
