@@ -18,6 +18,7 @@ import Element
         , height
         , inFront
         , maximum
+        , link
         , newTabLink
         , noStaticStyleSheet
         , padding
@@ -1572,6 +1573,15 @@ viewSettings model =
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Grotere toetsenbordletters" ], onOffButton model (SetLargeKeyboard (not model.useLargeKeyboard)) model.useLargeKeyboard ]
+                , el [ height (px 10) ] Element.none
+                , el [ Border.width 1, width fill ] Element.none
+                , el [ height (px 10) ] Element.none
+                , case language of
+                    English ->
+                        paragraph [] [ text "Save your scores: ", link [ Font.color linkColor ] { url = "https://jellespelletjes.nl/login/?origin=https://woordle.nl", label = text "log in at jellespelletjes.nl" } ]
+
+                    Dutch ->
+                        paragraph [] [ text "Scores opslaan: ", link [ Font.color linkColor ] { url = "https://jellespelletjes.nl/login/?origin=https://woordle.nl", label = text "log in via jellespelletjes.nl" } ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none

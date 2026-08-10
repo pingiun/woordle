@@ -1,6 +1,7 @@
 import puzzleWordsRaw from "../../data/puzzle-words?raw";
 import allWordsRaw from "../../data/all-words?raw";
 import { Elm } from "../../src/Main.elm";
+import { setupAccount } from "./account.js";
 
 const puzzle_words = puzzleWordsRaw.trim().split("\n");
 const all_words = allWordsRaw.trim().split("\n");
@@ -40,6 +41,7 @@ var app = Elm.Main.init({
     startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 });
+setupAccount(app, { game: "woordle", suffix: "", offset: offset });
 app.ports.save.subscribe(function (value) {
   for (const [key, val] of Object.entries(JSON.parse(value))) {
     localStorage.setItem(key, JSON.stringify(val));

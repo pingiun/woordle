@@ -1,6 +1,7 @@
 import puzzleWordsRaw from "../../data/puzzle-words-en?raw";
 import allWordsRaw from "../../data/all-words-en?raw";
 import { Elm } from "../../src-en/Main.elm";
+import { setupAccount } from "./account.js";
 
 const puzzle_words = puzzleWordsRaw.trim().split("\n");
 const all_words = allWordsRaw.trim().split("\n");
@@ -40,6 +41,7 @@ function loadStorage() {
       startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
     }
   });
+  setupAccount(app, { game: "wordle", suffix: "-en", offset: offset });
   app.ports.save.subscribe(function (value) {
     for (const [key, val] of Object.entries(JSON.parse(value))) {
       localStorage.setItem(key, JSON.stringify(val));

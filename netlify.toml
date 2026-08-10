@@ -15,3 +15,7 @@ for = "/assets/*"
 [[redirects]]
   from = "/ads.txt"
   to = "https://srv.adstxtmanager.com/19390/woordle.nl"
+[[redirects]]
+  from = "/auth/callback"
+  to = "/index.html"
+  status = 200
