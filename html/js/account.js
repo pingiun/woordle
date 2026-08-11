@@ -21,6 +21,12 @@ async function api(method, path, body) {
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+  // Single sign-off: a 401 with a token means the session was revoked
+  // elsewhere — drop the local login state.
+  if (response.status === 401 && token) {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(EMAIL_KEY);
+  }
   return response;
 }
 
@@ -101,7 +107,15 @@ async function importStatsOnce(game, suffix) {
  * `offset`: today's day offset as computed by the page
  */
 export function setupAccount(app, { game, suffix, offset }) {
-  handleAuthCallback().then(() => {
+  handleAuthCallback().then(async () => {
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    // Revalidate the session; a 401 here clears the local login state
+    // (single sign-off performed on another site or device).
+    try {
+      await api("GET", "/me");
+    } catch {
+      // offline: keep local state
+    }
     if (!localStorage.getItem(TOKEN_KEY)) return;
     flushQueue();
     importStatsOnce(game, suffix);
