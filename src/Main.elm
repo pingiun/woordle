@@ -69,7 +69,8 @@ type alias Model =
     , showHelp : Bool
     , showSettings : Bool
     , showStats : Bool
-    , useDarkMode : Bool
+    , theme : Theme
+    , systemDark : Bool
     , useContrastMode : Bool
     , useLargeKeyboard : Bool
     , statistics : Statistics
@@ -96,6 +97,12 @@ type PlayState
     = Playing
     | Won
     | Lost
+
+
+type Theme
+    = SystemTheme
+    | LightTheme
+    | DarkTheme
 
 
 type alias Toast =
@@ -134,7 +141,8 @@ type Msg
     | ShowHelp Bool
     | ShowSettings Bool
     | ShowStats Bool
-    | SetDarkMode Bool
+    | SetTheme Theme
+    | SystemDarkChanged Bool
     | SetContrastMode Bool
     | SetLargeKeyboard Bool
     | None
@@ -166,7 +174,7 @@ init flags =
                 flags.todaysWord
                 flags.startDarkMode
     in
-    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize }
+    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize, systemDark = flags.startDarkMode }
     , perform NewZone here
     )
 
@@ -181,6 +189,25 @@ port makeToast : (String -> msg) -> Sub msg
 
 
 port finishEvent : String -> Cmd msg
+
+
+port systemDarkMode : (Bool -> msg) -> Sub msg
+
+
+{-| The effective dark mode: an explicit choice wins, otherwise follow
+the system preference.
+-}
+useDarkMode : Model -> Bool
+useDarkMode model =
+    case model.theme of
+        SystemTheme ->
+            model.systemDark
+
+        LightTheme ->
+            False
+
+        DarkTheme ->
+            True
 
 
 view : Model -> Html.Html Msg
@@ -643,7 +670,7 @@ modelToJson model =
                 , ( "hardMode", E.bool False )
                 ]
           )
-        , ( "darkTheme", E.bool model.useDarkMode )
+        , ( "darkTheme", themeToJson model.theme )
         , ( "colorBlindTheme", E.bool model.useContrastMode )
         , ( "largeKeyboard", E.bool model.useLargeKeyboard )
         , ( "statistics" ++ storageSuffix model, statisticsToJson model.statistics )
@@ -765,13 +792,13 @@ getStatistics =
 
 
 type alias UISettings =
-    { darkTheme : Maybe Bool, colorBlindTheme : Maybe Bool, largeKeyboard : Maybe Bool }
+    { darkTheme : Maybe Theme, colorBlindTheme : Maybe Bool, largeKeyboard : Maybe Bool }
 
 
 getUISettings : D.Decoder UISettings
 getUISettings =
     D.map3 UISettings
-        (D.maybe (D.field "darkTheme" D.bool))
+        (D.maybe (D.field "darkTheme" themeDecoder))
         (D.maybe (D.field "colorBlindTheme" D.bool))
         (D.maybe (D.field "largeKeyboard" D.bool))
 
@@ -805,7 +832,8 @@ modelDecoder wordSize todaysWord =
             , showHelp = False
             , showSettings = False
             , showStats = False
-            , useDarkMode = uiSettings.darkTheme |> Maybe.withDefault False
+            , theme = uiSettings.darkTheme |> Maybe.withDefault SystemTheme
+            , systemDark = False
             , useContrastMode = uiSettings.colorBlindTheme |> Maybe.withDefault False
             , useLargeKeyboard = uiSettings.largeKeyboard |> Maybe.withDefault False
             , statistics = statistics |> Maybe.withDefault emptyStatistics
@@ -819,6 +847,54 @@ modelDecoder wordSize todaysWord =
         (D.field "gameState" getLastCompleted)
         getUISettings
         (D.maybe (D.field "statistics" getStatistics))
+
+
+{-| Stored as a string; older versions stored a bool, which we keep
+decoding as an explicit light/dark choice.
+-}
+themeToJson : Theme -> E.Value
+themeToJson theme =
+    E.string <|
+        case theme of
+            SystemTheme ->
+                "system"
+
+            LightTheme ->
+                "light"
+
+            DarkTheme ->
+                "dark"
+
+
+themeDecoder : D.Decoder Theme
+themeDecoder =
+    D.oneOf
+        [ D.bool
+            |> D.map
+                (\b ->
+                    if b then
+                        DarkTheme
+
+                    else
+                        LightTheme
+                )
+        , D.string
+            |> D.andThen
+                (\s ->
+                    case s of
+                        "system" ->
+                            D.succeed SystemTheme
+
+                        "light" ->
+                            D.succeed LightTheme
+
+                        "dark" ->
+                            D.succeed DarkTheme
+
+                        _ ->
+                            D.fail "unknown theme"
+                )
+        ]
 
 
 emptyStatistics : Statistics
@@ -871,7 +947,8 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             , showHelp = True
             , showSettings = False
             , showStats = False
-            , useDarkMode = startDarkMode
+            , theme = SystemTheme
+            , systemDark = startDarkMode
             , useContrastMode = False
             , useLargeKeyboard = False
             , statistics = emptyStatistics
@@ -891,6 +968,7 @@ subscriptions model =
         , onResize NewSize
         , every 100 NewTime
         , makeToast (\msg -> AddToast { content = text msg, removeAt = inTwoSeconds model.currentTime })
+        , systemDarkMode SystemDarkChanged
         ]
 
 
@@ -946,7 +1024,7 @@ createShare model =
 
 blokje : Model -> CharGuess -> String
 blokje model char =
-    case ( char, model.useDarkMode, model.useContrastMode ) of
+    case ( char, useDarkMode model, model.useContrastMode ) of
         ( New _, _, _ ) ->
             ""
 
@@ -1036,8 +1114,11 @@ update msg model =
                 ShowStats False ->
                     { model | showStats = False }
 
-                SetDarkMode x ->
-                    { model | useDarkMode = x }
+                SetTheme x ->
+                    { model | theme = x }
+
+                SystemDarkChanged x ->
+                    { model | systemDark = x }
 
                 SetContrastMode x ->
                     { model | useContrastMode = x }
@@ -1056,7 +1137,7 @@ update msg model =
                 ( Keyboard _, Playing ) ->
                     save (modelToJson newModel)
 
-                ( SetDarkMode _, _ ) ->
+                ( SetTheme _, _ ) ->
                     save (modelToJson newModel)
 
                 ( SetContrastMode _, _ ) ->
@@ -1500,6 +1581,26 @@ maybeViewSettings model =
         Element.none
 
 
+themeButton : Model -> Theme -> String -> Element Msg
+themeButton model theme txt =
+    let
+        bgColor =
+            if model.theme == theme then
+                buttonOn model
+
+            else
+                buttonOff model
+    in
+    button
+        [ Background.color bgColor
+        , Element.mouseDown [ Background.color (darken bgColor) ]
+        , padding 10
+        , rounded 10
+        , Font.size 18
+        ]
+        { label = text txt, onPress = Just (SetTheme theme) }
+
+
 onOffButton : Model -> msg -> Bool -> Element msg
 onOffButton model msg state =
     let
@@ -1564,7 +1665,14 @@ viewSettings model =
             [ column [ centerX, centerY, spacing 10, padding 10, scrollbars, allowShrink, width fill, height fill ]
                 [ el [ Font.bold, centerX ] (text "INSTELLINGEN")
                 , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ] [ paragraph [] [ text "Donker thema" ], onOffButton model (SetDarkMode (not model.useDarkMode)) model.useDarkMode ]
+                , row [ width fill, spaceEvenly ]
+                    [ paragraph [] [ text "Donker thema" ]
+                    , row [ spacing 5 ]
+                        [ themeButton model SystemTheme "AUTO"
+                        , themeButton model LightTheme "LICHT"
+                        , themeButton model DarkTheme "DONKER"
+                        ]
+                    ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
@@ -1984,7 +2092,7 @@ placeColor model =
 
 wrongColor : Model -> Element.Color
 wrongColor model =
-    if model.useDarkMode then
+    if useDarkMode model then
         darken darkgrey
 
     else
@@ -2023,7 +2131,7 @@ lightgrey =
 
 pageBackground : Model -> Element.Color
 pageBackground model =
-    if model.useDarkMode then
+    if useDarkMode model then
         darkBackground
 
     else
@@ -2037,7 +2145,7 @@ darkBackground =
 
 textColor : Model -> Element.Color
 textColor model =
-    if model.useDarkMode then
+    if useDarkMode model then
         lightText
 
     else
@@ -2046,7 +2154,7 @@ textColor model =
 
 vakjeTextColor : Model -> Element.Color
 vakjeTextColor model =
-    if model.useDarkMode then
+    if useDarkMode model then
         lightText
 
     else
@@ -2054,7 +2162,7 @@ vakjeTextColor model =
 
 
 newVakjeTextColor model =
-    if model.useDarkMode then
+    if useDarkMode model then
         lightText
 
     else
@@ -2071,7 +2179,7 @@ black =
 
 keyColor : Model -> Element.Color
 keyColor model =
-    if model.useDarkMode then
+    if useDarkMode model then
         darken lightgrey
 
     else
@@ -2132,6 +2240,15 @@ text str =
 
                     "Donker thema" ->
                         "Dark Theme"
+
+                    "AUTO" ->
+                        "AUTO"
+
+                    "LICHT" ->
+                        "LIGHT"
+
+                    "DONKER" ->
+                        "DARK"
 
                     "Hoog contrast vakjes" ->
                         "Color Blind Mode"

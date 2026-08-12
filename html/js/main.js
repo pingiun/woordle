@@ -70,3 +70,8 @@ app.ports.share.subscribe(function (sharestring) {
     app.ports.makeToast.send("Kon niet delen");
   }
 });
+if (window.matchMedia && app.ports.systemDarkMode) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+    app.ports.systemDarkMode.send(e.matches);
+  });
+}
