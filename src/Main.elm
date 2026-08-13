@@ -1581,6 +1581,27 @@ maybeViewSettings model =
         Element.none
 
 
+{-| The login link to the jellespelletjes hub, styled like the other
+settings buttons.
+-}
+loginButton : Model -> Element Msg
+loginButton model =
+    let
+        bgColor =
+            buttonOn model
+    in
+    link
+        [ Background.color bgColor
+        , Element.mouseDown [ Background.color (darken bgColor) ]
+        , padding 10
+        , rounded 10
+        , Font.size 18
+        ]
+        { url = "https://jellespelletjes.nl/login/?origin=https://woordle.nl"
+        , label = text "INLOGGEN"
+        }
+
+
 themeButton : Model -> Theme -> String -> Element Msg
 themeButton model theme txt =
     let
@@ -1684,12 +1705,10 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , case language of
-                    English ->
-                        paragraph [] [ text "Save your scores: ", link [ Font.color linkColor ] { url = "https://jellespelletjes.nl/login/?origin=https://woordle.nl", label = text "log in at jellespelletjes.nl" } ]
-
-                    Dutch ->
-                        paragraph [] [ text "Scores opslaan: ", link [ Font.color linkColor ] { url = "https://jellespelletjes.nl/login/?origin=https://woordle.nl", label = text "log in via jellespelletjes.nl" } ]
+                , row [ width fill, spaceEvenly ]
+                    [ paragraph [] [ text "Scores opslaan" ]
+                    , loginButton model
+                    ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
@@ -2243,6 +2262,12 @@ text str =
 
                     "AUTO" ->
                         "AUTO"
+
+                    "Scores opslaan" ->
+                        "Save your scores"
+
+                    "INLOGGEN" ->
+                        "LOG IN"
 
                     "LICHT" ->
                         "LIGHT"
