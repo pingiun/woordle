@@ -135,7 +135,40 @@ export function setupAccount(app, { game, suffix, offset, word }) {
     });
   }
 
+  // Tell Elm whether a session exists (shown in settings). Sent again after
+  // the auth callback and session revalidation, which can change it.
+  function sendLoginState() {
+    if (app.ports.loginState) {
+      app.ports.loginState.send(!!localStorage.getItem(TOKEN_KEY));
+    }
+  }
+
+  sendLoginState();
+
+  // Single sign-off: clear local state first, then revoke every session
+  // server-side (needs the captured token).
+  if (app.ports.logout) {
+    app.ports.logout.subscribe(async function () {
+      const token = localStorage.getItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(EMAIL_KEY);
+      sendLoginState();
+      if (token) {
+        try {
+          await fetch(API() + "/logout", {
+            method: "POST",
+            headers: { "content-type": "application/json", authorization: "Bearer " + token },
+            body: "{}",
+          });
+        } catch {
+          // best effort; sessions expire server-side eventually
+        }
+      }
+    });
+  }
+
   handleAuthCallback().then(async () => {
+    sendLoginState();
     if (!localStorage.getItem(TOKEN_KEY)) return;
     // Revalidate the session; a 401 here clears the local login state
     // (single sign-off performed on another site or device).
@@ -144,6 +177,7 @@ export function setupAccount(app, { game, suffix, offset, word }) {
     } catch {
       // offline: keep local state
     }
+    sendLoginState();
     if (!localStorage.getItem(TOKEN_KEY)) return;
     flushQueue();
     importStatsOnce(game, suffix);

@@ -71,6 +71,7 @@ type alias Model =
     , showStats : Bool
     , theme : Theme
     , systemDark : Bool
+    , loggedIn : Bool
     , useContrastMode : Bool
     , useLargeKeyboard : Bool
     , statistics : Statistics
@@ -143,6 +144,8 @@ type Msg
     | ShowStats Bool
     | SetTheme Theme
     | SystemDarkChanged Bool
+    | LoginStateChanged Bool
+    | LogOut
     | SetContrastMode Bool
     | SetLargeKeyboard Bool
     | None
@@ -192,6 +195,12 @@ port finishEvent : String -> Cmd msg
 
 
 port systemDarkMode : (Bool -> msg) -> Sub msg
+
+
+port loginState : (Bool -> msg) -> Sub msg
+
+
+port logout : E.Value -> Cmd msg
 
 
 {-| The effective dark mode: an explicit choice wins, otherwise follow
@@ -834,6 +843,7 @@ modelDecoder wordSize todaysWord =
             , showStats = False
             , theme = uiSettings.darkTheme |> Maybe.withDefault SystemTheme
             , systemDark = False
+            , loggedIn = False
             , useContrastMode = uiSettings.colorBlindTheme |> Maybe.withDefault False
             , useLargeKeyboard = uiSettings.largeKeyboard |> Maybe.withDefault False
             , statistics = statistics |> Maybe.withDefault emptyStatistics
@@ -949,6 +959,7 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             , showStats = False
             , theme = SystemTheme
             , systemDark = startDarkMode
+            , loggedIn = False
             , useContrastMode = False
             , useLargeKeyboard = False
             , statistics = emptyStatistics
@@ -969,6 +980,7 @@ subscriptions model =
         , every 100 NewTime
         , makeToast (\msg -> AddToast { content = text msg, removeAt = inTwoSeconds model.currentTime })
         , systemDarkMode SystemDarkChanged
+        , loginState LoginStateChanged
         ]
 
 
@@ -1120,6 +1132,12 @@ update msg model =
                 SystemDarkChanged x ->
                     { model | systemDark = x }
 
+                LoginStateChanged x ->
+                    { model | loggedIn = x }
+
+                LogOut ->
+                    { model | loggedIn = False }
+
                 SetContrastMode x ->
                     { model | useContrastMode = x }
 
@@ -1145,6 +1163,9 @@ update msg model =
 
                 ( Share, _ ) ->
                     share (createShare newModel)
+
+                ( LogOut, _ ) ->
+                    logout E.null
 
                 _ ->
                     Cmd.none
@@ -1602,6 +1623,22 @@ loginButton model =
         }
 
 
+logoutButton : Model -> Element Msg
+logoutButton model =
+    let
+        bgColor =
+            buttonOff model
+    in
+    button
+        [ Background.color bgColor
+        , Element.mouseDown [ Background.color (darken bgColor) ]
+        , padding 10
+        , rounded 10
+        , Font.size 18
+        ]
+        { label = text "UITLOGGEN", onPress = Just LogOut }
+
+
 themeButton : Model -> Theme -> String -> Element Msg
 themeButton model theme txt =
     let
@@ -1705,10 +1742,17 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ]
-                    [ paragraph [] [ text "Scores opslaan" ]
-                    , loginButton model
-                    ]
+                , if model.loggedIn then
+                    row [ width fill, spaceEvenly, spacing 10 ]
+                        [ paragraph [] [ text "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ]
+                        , logoutButton model
+                        ]
+
+                  else
+                    row [ width fill, spaceEvenly ]
+                        [ paragraph [] [ text "Scores opslaan" ]
+                        , loginButton model
+                        ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
@@ -2268,6 +2312,12 @@ text str =
 
                     "INLOGGEN" ->
                         "LOG IN"
+
+                    "UITLOGGEN" ->
+                        "LOG OUT"
+
+                    "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ->
+                        "Your scores and streak are saved in your jellespelletjes account"
 
                     "LICHT" ->
                         "LIGHT"
