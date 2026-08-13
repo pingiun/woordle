@@ -41,7 +41,7 @@ var app = Elm.Main.init({
     startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 });
-setupAccount(app, { game: "woordle", suffix: "", offset: offset });
+setupAccount(app, { game: "woordle", suffix: "", offset: offset, word: todays_word });
 app.ports.save.subscribe(function (value) {
   for (const [key, val] of Object.entries(JSON.parse(value))) {
     localStorage.setItem(key, JSON.stringify(val));

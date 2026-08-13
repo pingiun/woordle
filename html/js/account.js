@@ -105,25 +105,13 @@ async function importStatsOnce(game, suffix) {
  * `game`: API game id (woordle | woordle6 | wordle | wordle6)
  * `suffix`: localStorage suffix for this variant ("", "6", "-en", "6-en")
  * `offset`: today's day offset as computed by the page
+ * `word`: today's solution, to recognize whether the stored game is today's
  */
-export function setupAccount(app, { game, suffix, offset }) {
-  handleAuthCallback().then(async () => {
-    if (!localStorage.getItem(TOKEN_KEY)) return;
-    // Revalidate the session; a 401 here clears the local login state
-    // (single sign-off performed on another site or device).
-    try {
-      await api("GET", "/me");
-    } catch {
-      // offline: keep local state
-    }
-    if (!localStorage.getItem(TOKEN_KEY)) return;
-    flushQueue();
-    importStatsOnce(game, suffix);
-  });
-
-  // finishEvent fires when a game ends; the authoritative state is what the
-  // save port just wrote to localStorage.
-  app.ports.finishEvent.subscribe(function () {
+export function setupAccount(app, { game, suffix, offset, word }) {
+  // Submit today's finished game from localStorage, if any. Safe to call
+  // repeatedly: the PUT is idempotent server-side. The `word` check guards
+  // against submitting yesterday's leftover board under today's day number.
+  function submitStoredGame() {
     if (!localStorage.getItem(TOKEN_KEY)) return;
     let state = null;
     try {
@@ -132,6 +120,7 @@ export function setupAccount(app, { game, suffix, offset }) {
       return;
     }
     if (!state || (state.gameStatus !== "WIN" && state.gameStatus !== "FAIL")) return;
+    if (state.solution !== word) return;
     const submission = {
       guesses: (state.boardState || []).filter((row) => row && row.length > 0),
       won: state.gameStatus === "WIN",
@@ -144,5 +133,27 @@ export function setupAccount(app, { game, suffix, offset }) {
         localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
       }
     });
+  }
+
+  handleAuthCallback().then(async () => {
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    // Revalidate the session; a 401 here clears the local login state
+    // (single sign-off performed on another site or device).
+    try {
+      await api("GET", "/me");
+    } catch {
+      // offline: keep local state
+    }
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    flushQueue();
+    importStatsOnce(game, suffix);
+    // A game finished while logged out (or in another tab) never fired a
+    // submit — re-submitting today's stored result on every load closes
+    // that gap, so a same-day login still saves the streak.
+    submitStoredGame();
   });
+
+  // finishEvent fires when a game ends; the authoritative state is what the
+  // save port just wrote to localStorage.
+  app.ports.finishEvent.subscribe(submitStoredGame);
 }
