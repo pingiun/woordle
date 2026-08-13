@@ -1738,7 +1738,7 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://twitter.com/pingiun_", label = text "yele op Twitter" } ]
+                , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://www.linkedin.com/company/jellespelletjes", label = text "Jellespelletjes op LinkedIn" } ]
                 , case language of
                     English ->
                         paragraph [] [ Element.text "Based on ", newTabLink [ Font.color linkColor ] { url = "https://www.nytimes.com/games/wordle/index.html", label = Element.text "WORDLE by Josh Wardle" } ]
@@ -2386,8 +2386,8 @@ text str =
                     "Feedback: " ->
                         "Feedback: "
 
-                    "yele op Twitter" ->
-                        "yele on Twitter"
+                    "Jellespelletjes op LinkedIn" ->
+                        "Jellespelletjes on LinkedIn"
 
                     "INSTRUCTIES" ->
                         "INSTRUCTIONS"
