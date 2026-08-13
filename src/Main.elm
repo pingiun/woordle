@@ -69,9 +69,9 @@ type alias Model =
     , showHelp : Bool
     , showSettings : Bool
     , showStats : Bool
+    , accountIntroSeen : Bool
     , theme : Theme
     , systemDark : Bool
-    , loggedIn : Bool
     , useContrastMode : Bool
     , useLargeKeyboard : Bool
     , statistics : Statistics
@@ -139,13 +139,12 @@ type Msg
     | Share
     | AddToast Toast
     | DismissEndScreen
+    | DismissAccountIntro
     | ShowHelp Bool
     | ShowSettings Bool
     | ShowStats Bool
     | SetTheme Theme
     | SystemDarkChanged Bool
-    | LoginStateChanged Bool
-    | LogOut
     | SetContrastMode Bool
     | SetLargeKeyboard Bool
     | None
@@ -164,6 +163,7 @@ type alias InitialData =
     , offset : Int
     , wordSize : Int
     , startDarkMode : Bool
+    , loggedIn : Bool
     }
 
 
@@ -177,7 +177,16 @@ init flags =
                 flags.todaysWord
                 flags.startDarkMode
     in
-    ( { model | window = flags.windowSize, allWords = Set.fromList flags.allWords, offset = flags.offset, wordSize = flags.wordSize, systemDark = flags.startDarkMode }
+    ( { model
+        | window = flags.windowSize
+        , allWords = Set.fromList flags.allWords
+        , offset = flags.offset
+        , wordSize = flags.wordSize
+        , systemDark = flags.startDarkMode
+
+        -- someone already logged in does not need the announcement
+        , accountIntroSeen = model.accountIntroSeen || flags.loggedIn
+      }
     , perform NewZone here
     )
 
@@ -195,12 +204,6 @@ port finishEvent : String -> Cmd msg
 
 
 port systemDarkMode : (Bool -> msg) -> Sub msg
-
-
-port loginState : (Bool -> msg) -> Sub msg
-
-
-port logout : E.Value -> Cmd msg
 
 
 {-| The effective dark mode: an explicit choice wins, otherwise follow
@@ -228,6 +231,7 @@ view model =
         , inFront (maybeViewSettings model)
         , inFront (maybeViewStats model)
         , inFront (maybeViewEndScreen model)
+        , inFront (maybeViewAccountIntro model)
         , inFront (viewToasts model)
         , flexGrowClass
         ]
@@ -679,6 +683,7 @@ modelToJson model =
                 , ( "hardMode", E.bool False )
                 ]
           )
+        , ( "accountIntroSeen", E.bool model.accountIntroSeen )
         , ( "darkTheme", themeToJson model.theme )
         , ( "colorBlindTheme", E.bool model.useContrastMode )
         , ( "largeKeyboard", E.bool model.useLargeKeyboard )
@@ -801,15 +806,16 @@ getStatistics =
 
 
 type alias UISettings =
-    { darkTheme : Maybe Theme, colorBlindTheme : Maybe Bool, largeKeyboard : Maybe Bool }
+    { darkTheme : Maybe Theme, colorBlindTheme : Maybe Bool, largeKeyboard : Maybe Bool, accountIntroSeen : Maybe Bool }
 
 
 getUISettings : D.Decoder UISettings
 getUISettings =
-    D.map3 UISettings
+    D.map4 UISettings
         (D.maybe (D.field "darkTheme" themeDecoder))
         (D.maybe (D.field "colorBlindTheme" D.bool))
         (D.maybe (D.field "largeKeyboard" D.bool))
+        (D.maybe (D.field "accountIntroSeen" D.bool))
 
 
 modelDecoder : Int -> String -> D.Decoder Model
@@ -841,9 +847,9 @@ modelDecoder wordSize todaysWord =
             , showHelp = False
             , showSettings = False
             , showStats = False
+            , accountIntroSeen = uiSettings.accountIntroSeen |> Maybe.withDefault False
             , theme = uiSettings.darkTheme |> Maybe.withDefault SystemTheme
             , systemDark = False
-            , loggedIn = False
             , useContrastMode = uiSettings.colorBlindTheme |> Maybe.withDefault False
             , useLargeKeyboard = uiSettings.largeKeyboard |> Maybe.withDefault False
             , statistics = statistics |> Maybe.withDefault emptyStatistics
@@ -957,9 +963,12 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             , showHelp = True
             , showSettings = False
             , showStats = False
+
+            -- fresh players get the help modal; they will find the login
+            -- button in the settings, no announcement needed
+            , accountIntroSeen = True
             , theme = SystemTheme
             , systemDark = startDarkMode
-            , loggedIn = False
             , useContrastMode = False
             , useLargeKeyboard = False
             , statistics = emptyStatistics
@@ -980,7 +989,6 @@ subscriptions model =
         , every 100 NewTime
         , makeToast (\msg -> AddToast { content = text msg, removeAt = inTwoSeconds model.currentTime })
         , systemDarkMode SystemDarkChanged
-        , loginState LoginStateChanged
         ]
 
 
@@ -1110,6 +1118,9 @@ update msg model =
                 DismissEndScreen ->
                     { model | showEndScreen = False }
 
+                DismissAccountIntro ->
+                    { model | accountIntroSeen = True }
+
                 ShowHelp x ->
                     { model | showHelp = x }
 
@@ -1132,12 +1143,6 @@ update msg model =
                 SystemDarkChanged x ->
                     { model | systemDark = x }
 
-                LoginStateChanged x ->
-                    { model | loggedIn = x }
-
-                LogOut ->
-                    { model | loggedIn = False }
-
                 SetContrastMode x ->
                     { model | useContrastMode = x }
 
@@ -1155,6 +1160,9 @@ update msg model =
                 ( Keyboard _, Playing ) ->
                     save (modelToJson newModel)
 
+                ( DismissAccountIntro, _ ) ->
+                    save (modelToJson newModel)
+
                 ( SetTheme _, _ ) ->
                     save (modelToJson newModel)
 
@@ -1163,9 +1171,6 @@ update msg model =
 
                 ( Share, _ ) ->
                     share (createShare newModel)
-
-                ( LogOut, _ ) ->
-                    logout E.null
 
                 _ ->
                     Cmd.none
@@ -1623,22 +1628,6 @@ loginButton model =
         }
 
 
-logoutButton : Model -> Element Msg
-logoutButton model =
-    let
-        bgColor =
-            buttonOff model
-    in
-    button
-        [ Background.color bgColor
-        , Element.mouseDown [ Background.color (darken bgColor) ]
-        , padding 10
-        , rounded 10
-        , Font.size 18
-        ]
-        { label = text "UITLOGGEN", onPress = Just LogOut }
-
-
 themeButton : Model -> Theme -> String -> Element Msg
 themeButton model theme txt =
     let
@@ -1742,17 +1731,10 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , if model.loggedIn then
-                    row [ width fill, spaceEvenly, spacing 10 ]
-                        [ paragraph [] [ text "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ]
-                        , logoutButton model
-                        ]
-
-                  else
-                    row [ width fill, spaceEvenly ]
-                        [ paragraph [] [ text "Scores opslaan" ]
-                        , loginButton model
-                        ]
+                , row [ width fill, spaceEvenly ]
+                    [ paragraph [] [ text "Scores opslaan" ]
+                    , loginButton model
+                    ]
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
@@ -1791,6 +1773,70 @@ viewToasts model =
                     content
             )
             model.toasts
+
+
+{-| 2026-08-17 00:00 Europe/Amsterdam: the public launch of the account
+system; the announcement stays hidden before then. currentTime is 0
+until the first clock tick, so this is also false while loading.
+-}
+accountLaunchMillis : Int
+accountLaunchMillis =
+    1786917600000
+
+
+maybeViewAccountIntro : Model -> Element Msg
+maybeViewAccountIntro model =
+    if model.accountIntroSeen || posixToMillis model.currentTime < accountLaunchMillis then
+        Element.none
+
+    else
+        viewAccountIntro model
+
+
+{-| One-time interstitial announcing the account system to returning
+players; dismissal is persisted, and logged-in players never see it.
+-}
+viewAccountIntro : Model -> Element Msg
+viewAccountIntro model =
+    let
+        ( w, _ ) =
+            calcWinScreenWH model.window
+
+        laterColor =
+            buttonOff model
+    in
+    el [ Background.color darkened_bg, onClick DismissAccountIntro, centerX, centerY, width fill, height fill ]
+        (column
+            [ Background.color (pageBackground model)
+            , width (px w)
+            , centerX
+            , centerY
+            , padding (modalPadding model)
+            , Border.rounded 10
+            , onClick None
+            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just DismissAccountIntro, label = text "✕" }))
+            ]
+            [ column [ centerX, spacing 10, padding 10, width fill ]
+                [ el [ Font.bold, centerX ] (text "NIEUW: ACCOUNTS")
+                , el [ height (px 10) ] Element.none
+                , paragraph [] [ text "Je kunt nu een account aanmaken om je scores op te slaan!" ]
+                , paragraph [] [ text "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ]
+                , paragraph [] [ text "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ]
+                , el [ height (px 10) ] Element.none
+                , row [ width fill, spaceEvenly ]
+                    [ button
+                        [ Background.color laterColor
+                        , Element.mouseDown [ Background.color (darken laterColor) ]
+                        , padding 10
+                        , rounded 10
+                        , Font.size 18
+                        ]
+                        { label = text "Sluiten", onPress = Just DismissAccountIntro }
+                    , el [ onClick DismissAccountIntro ] (loginButton model)
+                    ]
+                ]
+            ]
+        )
 
 
 maybeViewStats : Model -> Element Msg
@@ -2313,11 +2359,20 @@ text str =
                     "INLOGGEN" ->
                         "LOG IN"
 
-                    "UITLOGGEN" ->
-                        "LOG OUT"
+                    "NIEUW: ACCOUNTS" ->
+                        "NEW: ACCOUNTS"
 
-                    "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ->
-                        "Your scores and streak are saved in your jellespelletjes account"
+                    "Je kunt nu een account aanmaken om je scores op te slaan!" ->
+                        "You can now create an account to save your scores!"
+
+                    "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ->
+                        "Your statistics and streak are stored safely on the server, and you can continue playing on any device."
+
+                    "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ->
+                        "One account works for all games on jellespelletjes.nl."
+
+                    "Sluiten" ->
+                        "Close"
 
                     "LICHT" ->
                         "LIGHT"

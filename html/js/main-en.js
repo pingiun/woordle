@@ -14,7 +14,8 @@ function loadStorage() {
     const darkTheme = JSON.parse(localStorage.getItem("darkTheme"));
     const colorBlindTheme = JSON.parse(localStorage.getItem("colorBlindTheme"));
     const largeKeyboard = JSON.parse(localStorage.getItem("largeKeyboard"));
-    return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme, "largeKeyboard": largeKeyboard }
+  const accountIntroSeen = JSON.parse(localStorage.getItem("accountIntroSeen"));
+    return { "gameState": gameState, "statistics": statistics, "darkTheme": darkTheme, "colorBlindTheme": colorBlindTheme, "largeKeyboard": largeKeyboard, "accountIntroSeen": accountIntroSeen }
   }
   // https://stackoverflow.com/a/11252167
   function treatAsUTC(date) {
@@ -38,7 +39,8 @@ function loadStorage() {
       todaysWord: todays_word,
       offset: offset,
       wordSize: 5,
-      startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      startDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+    loggedIn: localStorage.getItem("jsp:auth-token") !== null
     }
   });
   setupAccount(app, { game: "wordle", suffix: "-en", offset: offset, word: todays_word });
