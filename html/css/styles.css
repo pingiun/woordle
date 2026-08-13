@@ -1479,3 +1479,12 @@ body {
   margin-top: 60px;
   margin-bottom: 40px;
 }
+
+/* A creative wider than the modal should overhang both sides equally
+   instead of sticking out to the right: center on every wrapper level. */
+#ezoic-pub-ad-placeholder-108,
+#ezoic-pub-ad-placeholder-108 > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
