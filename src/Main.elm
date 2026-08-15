@@ -1871,6 +1871,14 @@ accountLaunchMillis =
     1786831200000
 
 
+{-| 2026-08-17 00:00 Europe/Amsterdam: lettersoep's public launch; the
+end-screen promo stays hidden before then.
+-}
+lettersoepLaunchMillis : Int
+lettersoepLaunchMillis =
+    1786917600000
+
+
 accountLaunched : Model -> Bool
 accountLaunched model =
     posixToMillis model.currentTime >= accountLaunchMillis
@@ -1979,6 +1987,124 @@ viewAccount model =
 
         Nothing ->
             accountModal model (ShowAccount False) "ACCOUNT" (accountInfoBody model (ShowAccount False))
+
+
+{-| A fabricated zoomed-in lettersoep board using the game's real
+rendering: noodle letters (three layered round strokes over one skeleton
+path) and wobbly ingredient chips, on the tomato-soup broth.
+-}
+lettersoepPreview : Element msg
+lettersoepPreview =
+    let
+        cell =
+            52
+
+        soupLine =
+            rgba255 255 255 255 0.2
+
+        baseCell content =
+            el [ width (px cell), height (px cell), Border.width 1, Border.color soupLine ] content
+
+        -- lettersoep's single-stroke noodle alphabet, extruded like the game does
+        noodleLetter tilt path =
+            Element.html
+                (Svg.svg
+                    [ SvgA.viewBox "0 0 100 100"
+                    , SvgA.width "48"
+                    , SvgA.height "48"
+                    , SvgA.style ("transform: rotate(" ++ String.fromInt tilt ++ "deg)")
+                    ]
+                    [ Svg.g [ SvgA.fill "none", SvgA.strokeLinecap "round", SvgA.strokeLinejoin "round" ]
+                        [ Svg.path [ SvgA.d path, SvgA.stroke "#7d4f1e", SvgA.strokeWidth "20" ] []
+                        , Svg.path [ SvgA.d path, SvgA.stroke "#dfa94f", SvgA.strokeWidth "14" ] []
+                        , Svg.path [ SvgA.d path, SvgA.stroke "#f7dfa0", SvgA.strokeWidth "4.5", SvgA.transform "translate(-1.5,-2.5)" ] []
+                        ]
+                    ]
+                )
+
+        letter ( path, val, tilt ) =
+            baseCell
+                (el
+                    [ centerX
+                    , centerY
+                    , inFront
+                        (el [ alignRight, Element.alignBottom, Element.moveDown 2, Font.size 11, Font.bold, Font.color (rgb255 255 243 221) ]
+                            (Element.text (String.fromInt val))
+                        )
+                    ]
+                    (noodleLetter tilt path)
+                )
+
+        chipBlob =
+            "M50,8 C68,6 90,20 92,44 C94,66 80,90 52,92 C28,94 8,78 8,50 C8,26 30,10 50,8 Z"
+
+        chip tilt flesh rim label extra =
+            baseCell
+                (el [ centerX, centerY ]
+                    (Element.html
+                        (Svg.svg
+                            [ SvgA.viewBox "0 0 100 100"
+                            , SvgA.width "48"
+                            , SvgA.height "48"
+                            , SvgA.style ("transform: rotate(" ++ String.fromInt tilt ++ "deg)")
+                            ]
+                            ([ Svg.path [ SvgA.d chipBlob, SvgA.fill "none", SvgA.stroke "#fff3dd", SvgA.strokeWidth "13", SvgA.strokeLinejoin "round", SvgA.opacity "0.9" ] []
+                             , Svg.path [ SvgA.d chipBlob, SvgA.fill flesh, SvgA.stroke rim, SvgA.strokeWidth "6", SvgA.strokeLinejoin "round" ] []
+                             ]
+                                ++ extra
+                                ++ [ Svg.text_
+                                        [ SvgA.x "50", SvgA.y "52", SvgA.textAnchor "middle", SvgA.dominantBaseline "central", SvgA.fill "#fff", SvgA.fontSize "34", SvgA.fontWeight "700" ]
+                                        [ Svg.text label ]
+                                   ]
+                            )
+                        )
+                    )
+                )
+
+        carrotRing =
+            [ Svg.circle [ SvgA.cx "50", SvgA.cy "50", SvgA.r "24", SvgA.fill "none", SvgA.stroke "#f8d9ae", SvgA.strokeWidth "5" ] [] ]
+
+        chip2L tilt =
+            chip tilt "#a3d6ac" "#64a873" "2L" []
+
+        chip3L tilt =
+            chip tilt "#93b7e8" "#5f88c7" "3L" []
+
+        chip2W tilt =
+            chip tilt "#f2bc82" "#d98b3f" "2W" carrotRing
+
+        -- noodle skeleton paths for S O E P / S O U P
+        pS =
+            "M71,28 Q65,15 49,15 Q31,15 31,31 Q31,45 50,49 Q69,53 69,68 Q69,85 50,85 Q33,85 28,71"
+
+        pO =
+            "M50,15 Q26,15 26,50 Q26,85 50,85 Q74,85 74,50 Q74,15 50,15"
+
+        pE =
+            "M68,16 L34,16 L34,84 L68,84 M34,50 L60,50"
+
+        pP =
+            "M32,84 L32,16 Q69,16 69,35 Q69,54 32,54"
+
+        pU =
+            "M30,16 L30,62 Q30,85 50,85 Q70,85 70,62 L70,16"
+
+        word =
+            case language of
+                Dutch ->
+                    [ ( pS, 2, -2 ), ( pO, 1, 3 ), ( pE, 1, -1 ), ( pP, 3, 2 ) ]
+
+                English ->
+                    [ ( pS, 1, -2 ), ( pO, 1, 3 ), ( pU, 1, -1 ), ( pP, 3, 2 ) ]
+
+        gridRow cells =
+            row [] cells
+    in
+    column [ Background.color (rgb255 208 90 51), Border.rounded 10, padding 4 ]
+        [ gridRow [ baseCell Element.none, baseCell Element.none, chip3L 4, baseCell Element.none, chip2W -3 ]
+        , gridRow (chip2L 2 :: List.map letter word)
+        , gridRow [ baseCell Element.none, baseCell Element.none, chip2L -4, baseCell Element.none, baseCell Element.none ]
+        ]
 
 
 maybeViewStats : Model -> Element Msg
@@ -2122,9 +2248,33 @@ viewEndScreen model =
                                 ]
                             ]
 
+        lettersoepPromo =
+            if posixToMillis model.currentTime < lettersoepLaunchMillis then
+                Element.none
+
+            else
+                newTabLink [ Background.color (pageBackground model), Border.rounded 10, padding 20, width (px w) ]
+                { url =
+                    case language of
+                        Dutch ->
+                            "https://lettersoep.com"
+
+                        English ->
+                            "https://lettersoup.app"
+                , label =
+                    column [ spacing 12, width fill ]
+                        [ el [ Font.bold, centerX ] (text "LETTERSOEP")
+                        , el [ centerX ] lettersoepPreview
+                        , paragraph [ Font.size 16 ]
+                            [ text "Weet jij het woord met de meeste punten te leggen? Leg alle letters weg en scoor een bingo met 50 extra punten! "
+                            , el [ Font.color linkColor ] (text "Speel nu LETTERSOEP")
+                            ]
+                        ]
+                }
+
         newLinkToOther =
             if model.wordSize == 5 then
-                newTabLink [ Background.color (pageBackground model), Border.rounded 10, padding 20, width fill ]
+                newTabLink [ Background.color (pageBackground model), Border.rounded 10, padding 20, width (px w) ]
                     { label =
                         paragraph [ Font.size 16 ]
                             [ text "Door naar "
@@ -2137,13 +2287,14 @@ viewEndScreen model =
             else
                 Element.none
     in
-    el [ Background.color darkened_bg, centerX, centerY, width fill, height fill, paddingXY 0 20 ]
+    el [ Background.color darkened_bg, centerX, centerY, width fill, height fill, scrollbarY, allowShrink, paddingXY 0 20 ]
         (column
             [ centerX
             , centerY
             , spacing 10
             ]
-            [ newLinkToOther
+            [ lettersoepPromo
+            , newLinkToOther
             , column
                 [ Background.color (pageBackground model)
                 , width (px w)
@@ -2477,8 +2628,20 @@ text str =
                     "..." ->
                         "..."
 
-                    "WOORDLE6" ->
-                        "WORDLE6"
+                    "Door naar " ->
+                        "On to "
+
+                    " met 6 letters" ->
+                        " with 6 letters"
+
+                    "Volgende WOORDLE" ->
+                        "Next WOORDLE"
+
+                    "Ook al " ->
+                        "Have you tried "
+
+                    " geprobeerd?" ->
+                        " yet?"
 
                     "INSTELLINGEN" ->
                         "SETTINGS"
@@ -2522,6 +2685,15 @@ text str =
                     "Ingelogd als " ->
                         "Logged in as "
 
+                    "Weet jij het woord met de meeste punten te leggen? Leg alle letters weg en scoor een bingo met 50 extra punten! " ->
+                        "Can you play the word with the most points? Use all your letters and score a bingo for 50 extra points! "
+
+                    "Speel nu LETTERSOEP" ->
+                        "Play LETTERSOUP now"
+
+                    "LETTERSOEP" ->
+                        "LETTERSOUP"
+
                     "UITLOGGEN" ->
                         "LOG OUT"
 
@@ -2556,7 +2728,7 @@ text str =
                         "The word was"
 
                     "Volgende WOORDLE6" ->
-                        "Next WORDLE6"
+                        "Next WOORDLE6"
 
                     "Delen" ->
                         "Share"
