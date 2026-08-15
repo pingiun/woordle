@@ -72,7 +72,8 @@ type alias Model =
     , accountIntroSeen : Bool
     , theme : Theme
     , systemDark : Bool
-    , loggedIn : Bool
+    , loginEmail : Maybe String
+    , showAccount : Bool
     , useContrastMode : Bool
     , useLargeKeyboard : Bool
     , statistics : Statistics
@@ -146,7 +147,8 @@ type Msg
     | ShowStats Bool
     | SetTheme Theme
     | SystemDarkChanged Bool
-    | LoginStateChanged Bool
+    | LoginStateChanged (Maybe String)
+    | ShowAccount Bool
     | LogOut
     | SetContrastMode Bool
     | SetLargeKeyboard Bool
@@ -209,10 +211,15 @@ port finishEvent : String -> Cmd msg
 port systemDarkMode : (Bool -> msg) -> Sub msg
 
 
-port loginState : (Bool -> msg) -> Sub msg
+port loginState : (Maybe String -> msg) -> Sub msg
 
 
 port logout : E.Value -> Cmd msg
+
+
+isLoggedIn : Model -> Bool
+isLoggedIn model =
+    model.loginEmail /= Nothing
 
 
 {-| The effective dark mode: an explicit choice wins, otherwise follow
@@ -239,6 +246,7 @@ view model =
         , inFront (maybeViewHelp model)
         , inFront (maybeViewSettings model)
         , inFront (maybeViewStats model)
+        , inFront (maybeViewAccount model)
         , inFront (maybeViewEndScreen model)
         , inFront (maybeViewAccountIntro model)
         , inFront (viewToasts model)
@@ -358,8 +366,38 @@ viewHeader model =
         ]
         [ helpButton
         , el [ centerY, centerX ] (text (titel model))
-        , row [ spacing 10 ] [ statsButton, settingsButton ]
+        , row [ spacing 10 ]
+            ((if accountLaunched model then
+                [ accountButton model ]
+
+              else
+                []
+             )
+                ++ [ statsButton, settingsButton ]
+            )
         ]
+
+
+{-| A person-in-circle icon; green when logged in. -}
+accountButton : Model -> Element Msg
+accountButton model =
+    button
+        (alignLeft
+            :: (if isLoggedIn model then
+                    [ Font.color greenColor ]
+
+                else
+                    []
+               )
+        )
+        { onPress = Just (ShowAccount True)
+        , label =
+            headerIcon
+                [ Svg.circle [ SvgA.cx "12", SvgA.cy "12", SvgA.r "10" ] []
+                , Svg.circle [ SvgA.cx "12", SvgA.cy "9.5", SvgA.r "3" ] []
+                , Svg.path [ SvgA.d "M5.8 18.4c1.5-2.9 3.7-4 6.2-4s4.7 1.1 6.2 4" ] []
+                ]
+        }
 
 
 helpButton : Element Msg
@@ -859,7 +897,8 @@ modelDecoder wordSize todaysWord =
             , accountIntroSeen = uiSettings.accountIntroSeen |> Maybe.withDefault False
             , theme = uiSettings.darkTheme |> Maybe.withDefault SystemTheme
             , systemDark = False
-            , loggedIn = False
+            , loginEmail = Nothing
+            , showAccount = False
             , useContrastMode = uiSettings.colorBlindTheme |> Maybe.withDefault False
             , useLargeKeyboard = uiSettings.largeKeyboard |> Maybe.withDefault False
             , statistics = statistics |> Maybe.withDefault emptyStatistics
@@ -979,7 +1018,8 @@ modelFromJson inp wordSize todaysWord startDarkMode =
             , accountIntroSeen = True
             , theme = SystemTheme
             , systemDark = startDarkMode
-            , loggedIn = False
+            , loginEmail = Nothing
+            , showAccount = False
             , useContrastMode = False
             , useLargeKeyboard = False
             , statistics = emptyStatistics
@@ -1156,10 +1196,13 @@ update msg model =
                     { model | systemDark = x }
 
                 LoginStateChanged x ->
-                    { model | loggedIn = x }
+                    { model | loginEmail = x }
+
+                ShowAccount x ->
+                    { model | showAccount = x }
 
                 LogOut ->
-                    { model | loggedIn = False }
+                    { model | loginEmail = Nothing }
 
                 SetContrastMode x ->
                     { model | useContrastMode = x }
@@ -1768,7 +1811,7 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
-                , if model.loggedIn then
+                , if isLoggedIn model then
                     row [ width fill, spaceEvenly, spacing 10 ]
                         [ paragraph [] [ text "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ]
                         , logoutButton model
@@ -1819,18 +1862,23 @@ viewToasts model =
             model.toasts
 
 
-{-| 2026-08-17 00:00 Europe/Amsterdam: the public launch of the account
+{-| 2026-08-16 00:00 Europe/Amsterdam: the public launch of the account
 system; the announcement stays hidden before then. currentTime is 0
 until the first clock tick, so this is also false while loading.
 -}
 accountLaunchMillis : Int
 accountLaunchMillis =
-    1786917600000
+    1786831200000
+
+
+accountLaunched : Model -> Bool
+accountLaunched model =
+    posixToMillis model.currentTime >= accountLaunchMillis
 
 
 maybeViewAccountIntro : Model -> Element Msg
 maybeViewAccountIntro model =
-    if model.accountIntroSeen || posixToMillis model.currentTime < accountLaunchMillis then
+    if model.accountIntroSeen || not (accountLaunched model) then
         Element.none
 
     else
@@ -1842,14 +1890,17 @@ players; dismissal is persisted, and logged-in players never see it.
 -}
 viewAccountIntro : Model -> Element Msg
 viewAccountIntro model =
+    accountModal model DismissAccountIntro "NIEUW: ACCOUNTS" (accountInfoBody model DismissAccountIntro)
+
+
+{-| Shared modal shell for the account interstitial and the account popup. -}
+accountModal : Model -> Msg -> String -> List (Element Msg) -> Element Msg
+accountModal model dismiss title body =
     let
         ( w, _ ) =
             calcWinScreenWH model.window
-
-        laterColor =
-            buttonOff model
     in
-    el [ Background.color darkened_bg, onClick DismissAccountIntro, centerX, centerY, width fill, height fill ]
+    el [ Background.color darkened_bg, onClick dismiss, centerX, centerY, width fill, height fill ]
         (column
             [ Background.color (pageBackground model)
             , width (px w)
@@ -1858,29 +1909,76 @@ viewAccountIntro model =
             , padding (modalPadding model)
             , Border.rounded 10
             , onClick None
-            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just DismissAccountIntro, label = text "✕" }))
+            , inFront (el [ alignRight, padding 20 ] (button [] { onPress = Just dismiss, label = text "✕" }))
             ]
             [ column [ centerX, spacing 10, padding 10, width fill ]
-                [ el [ Font.bold, centerX ] (text "NIEUW: ACCOUNTS")
-                , el [ height (px 10) ] Element.none
-                , paragraph [] [ text "Je kunt nu een account aanmaken om je scores op te slaan!" ]
-                , paragraph [] [ text "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ]
-                , paragraph [] [ text "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ]
-                , el [ height (px 10) ] Element.none
-                , row [ width fill, spaceEvenly ]
-                    [ button
-                        [ Background.color laterColor
-                        , Element.mouseDown [ Background.color (darken laterColor) ]
-                        , padding 10
-                        , rounded 10
-                        , Font.size 18
-                        ]
-                        { label = text "Sluiten", onPress = Just DismissAccountIntro }
-                    , el [ onClick DismissAccountIntro ] (loginButton model)
-                    ]
-                ]
+                (el [ Font.bold, centerX ] (text title)
+                    :: el [ height (px 10) ] Element.none
+                    :: body
+                )
             ]
         )
+
+
+{-| Why-make-an-account explanation with close and login buttons; shown in
+the interstitial and, when logged out, the account popup.
+-}
+accountInfoBody : Model -> Msg -> List (Element Msg)
+accountInfoBody model dismiss =
+    [ paragraph [] [ text "Je kunt nu een account aanmaken om je scores op te slaan!" ]
+    , paragraph [] [ text "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ]
+    , paragraph [] [ text "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ]
+    , el [ height (px 10) ] Element.none
+    , row [ width fill, spaceEvenly ]
+        [ closeButton model dismiss
+        , el [ onClick dismiss ] (loginButton model)
+        ]
+    ]
+
+
+closeButton : Model -> Msg -> Element Msg
+closeButton model dismiss =
+    let
+        bgColor =
+            buttonOff model
+    in
+    button
+        [ Background.color bgColor
+        , Element.mouseDown [ Background.color (darken bgColor) ]
+        , padding 10
+        , rounded 10
+        , Font.size 18
+        ]
+        { label = text "Sluiten", onPress = Just dismiss }
+
+
+maybeViewAccount : Model -> Element Msg
+maybeViewAccount model =
+    if model.showAccount then
+        viewAccount model
+
+    else
+        Element.none
+
+
+viewAccount : Model -> Element Msg
+viewAccount model =
+    case model.loginEmail of
+        Just email ->
+            accountModal model
+                (ShowAccount False)
+                "ACCOUNT"
+                [ paragraph [] [ text "Ingelogd als ", el [ Font.bold ] (Element.text email) ]
+                , paragraph [] [ text "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ]
+                , el [ height (px 10) ] Element.none
+                , row [ width fill, spaceEvenly ]
+                    [ closeButton model (ShowAccount False)
+                    , logoutButton model
+                    ]
+                ]
+
+        Nothing ->
+            accountModal model (ShowAccount False) "ACCOUNT" (accountInfoBody model (ShowAccount False))
 
 
 maybeViewStats : Model -> Element Msg
@@ -2417,6 +2515,12 @@ text str =
 
                     "Sluiten" ->
                         "Close"
+
+                    "ACCOUNT" ->
+                        "ACCOUNT"
+
+                    "Ingelogd als " ->
+                        "Logged in as "
 
                     "UITLOGGEN" ->
                         "LOG OUT"

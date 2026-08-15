@@ -139,7 +139,9 @@ export function setupAccount(app, { game, suffix, offset, word }) {
   // the auth callback and session revalidation, which can change it.
   function sendLoginState() {
     if (app.ports.loginState) {
-      app.ports.loginState.send(!!localStorage.getItem(TOKEN_KEY));
+      // email (or "" for old sessions without one) when logged in, null when not
+      const email = localStorage.getItem(EMAIL_KEY) || "";
+      app.ports.loginState.send(localStorage.getItem(TOKEN_KEY) ? email : null);
     }
   }
 
