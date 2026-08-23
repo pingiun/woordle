@@ -1488,3 +1488,17 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+/* In-flow game-page ad slots must never widen the layout: an oversized
+   creative (e.g. a 728px leaderboard on a phone) would push the board
+   sideways off screen. Keep the slot at layout width and clip the
+   overhang symmetrically. */
+#ezoic-pub-ad-placeholder-105,
+#ezoic-pub-ad-placeholder-106,
+#ezoic-pub-ad-placeholder-107 {
+  max-width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

@@ -1692,6 +1692,22 @@ loginButton model =
         }
 
 
+{-| Dutch-only teaser for the paid account, shown in settings and the
+account popup.
+-}
+goudSettingsLink : Element msg
+goudSettingsLink =
+    case language of
+        Dutch ->
+            newTabLink [ centerX ]
+                { url = "https://jellespelletjes.nl/goud/"
+                , label = el [ Font.color linkColor, Font.size 16 ] (Element.text "Binnenkort: Jellespelletjes Goud")
+                }
+
+        English ->
+            Element.none
+
+
 logoutButton : Model -> Element Msg
 logoutButton model =
     let
@@ -1825,6 +1841,7 @@ viewSettings model =
                 , el [ height (px 10) ] Element.none
                 , el [ Border.width 1, width fill ] Element.none
                 , el [ height (px 10) ] Element.none
+                , goudSettingsLink
                 , paragraph [] [ text "Feedback: ", newTabLink [ Font.color linkColor ] { url = "https://www.linkedin.com/company/jellespelletjes", label = text "Jellespelletjes op LinkedIn" } ]
                 , case language of
                     English ->
@@ -1934,7 +1951,7 @@ the interstitial and, when logged out, the account popup.
 accountInfoBody : Model -> Msg -> List (Element Msg)
 accountInfoBody model dismiss =
     [ paragraph [] [ text "Je kunt nu een account aanmaken om je scores op te slaan!" ]
-    , paragraph [] [ text "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ]
+    , paragraph [] [ text "Je statistieken en streak staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ]
     , paragraph [] [ text "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ]
     , el [ height (px 10) ] Element.none
     , row [ width fill, spaceEvenly ]
@@ -1978,6 +1995,7 @@ viewAccount model =
                 "ACCOUNT"
                 [ paragraph [] [ text "Ingelogd als ", el [ Font.bold ] (Element.text email) ]
                 , paragraph [] [ text "Jouw scores en streak worden opgeslagen in jouw jellespelletjes account" ]
+                , goudSettingsLink
                 , el [ height (px 10) ] Element.none
                 , row [ width fill, spaceEvenly ]
                     [ closeButton model (ShowAccount False)
@@ -1986,7 +2004,10 @@ viewAccount model =
                 ]
 
         Nothing ->
-            accountModal model (ShowAccount False) "ACCOUNT" (accountInfoBody model (ShowAccount False))
+            accountModal model
+                (ShowAccount False)
+                "ACCOUNT"
+                (accountInfoBody model (ShowAccount False) ++ [ goudSettingsLink ])
 
 
 {-| A fabricated zoomed-in lettersoep board using the game's real
@@ -2248,6 +2269,31 @@ viewEndScreen model =
                                 ]
                             ]
 
+        goudPromo =
+            case language of
+                Dutch ->
+                    newTabLink
+                        [ Background.color (pageBackground model)
+                        , Border.rounded 10
+                        , Border.width 3
+                        , Border.color goudGold
+                        , padding 20
+                        , width (px w)
+                        ]
+                        { url = "https://jellespelletjes.nl/goud/"
+                        , label =
+                            column [ spacing 8, width fill ]
+                                [ el [ Font.bold, Font.size 16, centerX, Font.color goudGold ] (Element.text "BINNENKORT: JELLESPELLETJES GOUD")
+                                , paragraph [ Font.size 16, Font.center ]
+                                    [ Element.text "Streak-verzekering, het puzzelarchief en geen advertenties. "
+                                    , el [ Font.color linkColor ] (Element.text "Schrijf je in voor de founder-prijs")
+                                    ]
+                                ]
+                        }
+
+                English ->
+                    Element.none
+
         lettersoepPromo =
             if posixToMillis model.currentTime < lettersoepLaunchMillis then
                 Element.none
@@ -2293,7 +2339,8 @@ viewEndScreen model =
             , centerY
             , spacing 10
             ]
-            [ lettersoepPromo
+            [ goudPromo
+            , lettersoepPromo
             , newLinkToOther
             , column
                 [ Background.color (pageBackground model)
@@ -2361,8 +2408,8 @@ viewStatitics model =
         , row [ width fill, spacing 10 ]
             [ column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.gamesPlayed ++ "×"), el [ centerX, Font.size 14 ] <| text "gespeeld" ]
             , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt extra.winPercentage), el [ centerX, Font.size 14 ] <| text "Win %" ]
-            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.currentStreak), el [ centerX, Font.size 14 ] <| text "Huidige reeks" ]
-            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max reeks" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.currentStreak), el [ centerX, Font.size 14 ] <| text "Huidige streak" ]
+            , column [ centerX ] [ el [ centerX, Font.size 28 ] <| Element.text (String.fromInt model.statistics.maxStreak), el [ centerX, Font.size 14 ] <| text "Max streak" ]
             ]
         , el [ height (px 10) ] Element.none
         , el [ Font.bold, centerX ] (text "VERDELING")
@@ -2449,6 +2496,11 @@ grey =
 darkgrey : Element.Color
 darkgrey =
     rgb255 100 100 100
+
+
+goudGold : Element.Color
+goudGold =
+    rgb255 212 175 55
 
 
 greenColor : Element.Color
@@ -2670,7 +2722,7 @@ text str =
                     "Je kunt nu een account aanmaken om je scores op te slaan!" ->
                         "You can now create an account to save your scores!"
 
-                    "Je statistieken en reeks staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ->
+                    "Je statistieken en streak staan dan veilig op de server, en je kunt op meerdere apparaten verder spelen." ->
                         "Your statistics and streak are stored safely on the server, and you can continue playing on any device."
 
                     "Eén account werkt voor alle spelletjes op jellespelletjes.nl." ->
@@ -2745,10 +2797,10 @@ text str =
                     "Win %" ->
                         "Win %"
 
-                    "Huidige reeks" ->
+                    "Huidige streak" ->
                         "Current Streak"
 
-                    "Max reeks" ->
+                    "Max streak" ->
                         "Max Streak"
 
                     "Raad het " ->
